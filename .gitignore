@@ -1,0 +1,8 @@
+/tags
+/dcf-game-infrastructure
+public_bundle.tar.gz
+kubctl_*
+.idea/*
+*.pyc
+sftp.key
+
