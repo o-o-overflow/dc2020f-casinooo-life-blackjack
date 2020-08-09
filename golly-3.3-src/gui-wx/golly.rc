@@ -1,0 +1,11 @@
+// first icon file is used by Windows Explorer:
+aaaaaaaa ICON "icons/appicon.ico"
+
+// these icons are for the frame:
+appicon0 ICON "icons/appicon32.ico"
+appicon1 ICON "icons/appicon16.ico"
+
+// force appropriate .manifest file to be included in .res file
+#define wxUSE_RC_MANIFEST 1
+
+#include "wx/msw/wx.rc"

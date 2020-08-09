@@ -1,0 +1,85 @@
+apply plugin: "com.android.application"
+
+android {
+    compileSdkVersion 26
+    buildToolsVersion "26.0.2"
+
+    defaultConfig {
+        applicationId "net.sf.golly"
+        minSdkVersion 14
+        targetSdkVersion 26
+        versionCode 3
+        versionName "1.2"
+        externalNativeBuild {
+            cmake {
+
+                // needed for std::string etc
+                // also need System.loadLibrary("stlport_shared") in MainActivity.java
+                arguments "-DANDROID_STL=stlport_shared"
+
+                // define ANDROID_GUI used in the shared C++ code in gui-common;
+                // define ZLIB so Golly can read/write .gz files;
+                // set -fexceptions so we can use stdexcept
+                cppFlags "-DANDROID_GUI", "-DZLIB", "-fexceptions"
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    buildTypes {
+        debug {
+            ndk {
+                debuggable true
+            }
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt")
+            ndk {
+                debuggable false
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'CMakeLists.txt'
+        }
+    }
+}
+
+dependencies {
+    compile "com.android.support:support-fragment:26.1.0"
+}
+
+task zipHelp(type: Zip) {
+    archiveName "Help.zip"
+    from "../../../gui-common/Help"
+    include "**/*"
+    into "Help"
+    destinationDir file("src/main/assets/")
+}
+
+task zipPatterns(type: Zip) {
+    archiveName "Patterns.zip"
+    from "../../../Patterns"
+    include "**/*"
+    into "Patterns"
+    destinationDir file("src/main/assets/")
+}
+
+task zipRules(type: Zip) {
+    archiveName "Rules.zip"
+    from "../../../Rules"
+    include "**/*"
+    into "Rules"
+    destinationDir file("src/main/assets/")
+}
+
+preBuild.dependsOn(zipHelp)
+preBuild.dependsOn(zipPatterns)
+preBuild.dependsOn(zipRules)

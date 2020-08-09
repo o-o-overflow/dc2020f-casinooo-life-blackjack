@@ -1,0 +1,1612 @@
+<html>
+<title>Golly Help: Overlay</title>
+<body bgcolor="#FFFFCE">
+
+<p>
+<dd><a href="#intro"><b>Introduction</b></a></dd>
+<dd><a href="#commands"><b>The overlay commands</b></a></dd>
+<dd><a href="#blending"><b>Alpha blending</b></a></dd>
+<dd><a href="#clips"><b>Using clips</b></a></dd>
+<dd><a href="#affine"><b>Affine transformations</b></a></dd>
+<dd><a href="#cellviewdesc"><b>Cell view</b></a></dd>
+<dd><a href="#oplus"><b>The oplus package</b></a></dd>
+</p>
+
+<p><a name="intro"></a>&nbsp;<br>
+<font size=+1><b>Introduction</b></font>
+
+<p>
+The overlay is a rectangular region of pixels that can be displayed
+above the current layer.  Lua scripts have total control of what the
+overlay looks like and how the user interacts with it.
+The Scripts/Lua folder supplied with Golly has a number of scripts
+that illustrate how the overlay can be used:
+
+<p>
+<ul>
+<li><a href="open:Scripts/Lua/3D.lua"><b>3D.lua</b></a> lets people explore
+three-dimensional cellular automata.
+<li><a href="open:Scripts/Lua/breakout.lua"><b>breakout.lua</b></a> shows how to use
+the overlay functions to create a working game.
+<li><a href="open:Scripts/Lua/browse-patterns.lua"><b>browse-patterns.lua</b></a> browses
+through patterns in a folder manually or automatically.
+<li><a href="open:Scripts/Lua/hexgrid.lua"><b>hexgrid.lua</b></a> creates a true
+hexagonal grid for rules that use a hexagonal neighborhood.
+<li><a href="open:Scripts/Lua/lifeviewer.lua"><b>lifeviewer.lua</b></a> displays patterns like
+<a href="lifeviewer.html">LifeViewer</a>
+with history and smooth non-integer scaling and rotation.
+<li><a href="open:Scripts/Lua/overlay-demo.lua"><b>overlay-demo.lua</b></a> demonstrates
+how to use most of the overlay functions.
+<li><a href="open:Scripts/Lua/pop-plot.lua"><b>pop-plot.lua</b></a> displays a plot of
+population versus time that can be saved as a PNG file.
+</ul>
+
+<p>
+To study how these scripts work, control-click or right-click on one of the
+above links to open the script in your preferred text editor, then run the
+script by clicking on the same link.
+</p>
+
+<p>
+As well as graphics the overlay supports <a href="#sound">audio playback</a>.
+Note that audio support is a compile time option for Golly and is not enabled in the
+standard builds.
+</p>
+
+<p><a name="commands"></a>&nbsp;<br>
+<font size=+1><b>The overlay commands</b></font>
+
+<p>
+The overlay is manipulated using two scripts commands called
+<a href="lua.html#overlay">overlay</a> and <a href="lua.html#ovtable">ovtable</a>.
+<p>
+The first, <a href="lua.html#overlay">overlay</a>, takes a single string parameter
+that contains an overlay command followed by zero or more arguments separated by spaces.
+Some overlay commands can also return a single string as their result.
+<p>
+The second, <a href="lua.html#ovtable">ovtable</a>, takes a single table parameter
+rather than a string and only supports a <a href="#subset">subset</a>
+of the overlay commands. It is typically faster to use ovtable than overlay.
+The supported ovtable commands that return a result are <a href="#get">get</a>,
+which returns individual values, and <a href="#rgba">rgba</a>, which returns
+a table.
+In all other ways ovtable is identical to the overlay command.
+
+</p>
+<p>
+Here is an alphabetical list of all the valid overlay commands:
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+<a href="#blend"><b>blend</b></a><br>
+<a href="#camera"><b>camera</b></a><br>
+<a href="#celloption"><b>celloption</b></a><br>
+<a href="#cellview"><b>cellview</b></a><br>
+<a href="#copy"><b>copy</b></a><br>
+<a href="#create"><b>create</b></a><br>
+<a href="#cursor"><b>cursor</b></a><br>
+<a href="#delete"><b>delete</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#drawcells"><b>drawcells</b></a><br>
+<a href="#ellipse"><b>ellipse</b></a><br>
+<a href="#fill"><b>fill</b></a><br>
+<a href="#flood"><b>flood</b></a><br>
+<a href="#font"><b>font</b></a><br>
+<a href="#get"><b>get</b></a><br>
+<a href="#line"><b>line</b></a><br>
+<a href="#lines"><b>lines</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#lineoption"><b>lineoption</b></a><br>
+<a href="#load"><b>load</b></a><br>
+<a href="#optimize"><b>optimize</b></a><br>
+<a href="#paste"><b>paste</b></a><br>
+<a href="#position"><b>position</b></a><br>
+<a href="#replace"><b>replace</b></a><br>
+<a href="#resize"><b>resize</b></a><br>
+<a href="#rgba"><b>rgba</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#save"><b>save</b></a><br>
+<a href="#scale"><b>scale</b></a><br>
+<a href="#set"><b>set</b></a><br>
+<a href="#sound"><b>sound</b></a><br>
+<a href="#target"><b>target</b></a><br>
+<a href="#text"><b>text</b></a><br>
+<a href="#textoption"><b>textoption</b></a><br>
+<a href="#theme"><b>theme</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#transform"><b>transform</b></a><br>
+<a href="#update"><b>update</b></a><br>
+<a href="#updatecells"><b>updatecells</b></a><br>
+<a href="#xy"><b>xy</b></a>
+</td>
+</tr>
+</table>
+</dd>
+</p>
+
+<a name="subset"></a><p>Here is an alphabetical list of the subset of overlay commands
+supported by ovtable:
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+<a href="#fill"><b>fill</b></a><br>
+<a href="#get"><b>get</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#line"><b>line</b></a><br>
+<a href="#lines"><b>lines</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#paste"><b>paste</b></a><br>
+<a href="#rgba"><b>rgba</b></a>
+</td>
+<td valign=top width=40> </td>
+<td valign=top>
+<a href="#set"><b>set</b></a>
+</td>
+</tr>
+</table>
+</dd>
+</p>
+
+<p>
+All of the drawing commands use the current render target.
+This is initially the overlay but can be changed to a
+<a href="#clips">clip</a> with the <a href="#target">target</a> command.
+</p>
+
+<p>
+The examples given below assume a script has started with these lines:
+</p>
+<p>
+<dd><b>local g = golly()</b></dd>
+<dd><b>local ov = g.overlay</b></dd>
+<dd><b>local ovt = g.ovtable</b></dd>
+</p>
+
+<a name="blend"></a><p><dt><b>blend <i>i</i></b></dt>
+<dd>
+Set <a href="#blending">alpha blending</a> off (<i>i</i> = 0), full
+(<i>i</i> = 1) or fast (<i>i</i> = 2) and return the previous blend state as a string ("0", "1" or "2").
+The fast mode should only be used when the target pixels are opaque.
+The commands affected by alpha blending are:
+<a href="#ellipse">ellipse</a>,
+<a href="#fill">fill</a>,
+<a href="#flood">flood</a>,
+<a href="#line">line</a>,
+<a href="#lines">lines</a>,
+<a href="#load">load</a>,
+<a href="#paste">paste</a>,
+<a href="#scale">scale</a> and
+<a href="#set">set</a>.
+Note that setting alpha blending to full or fast also forces ellipses and lines to be antialiased.
+</dd>
+<dd> Example: <b>local oldblend = ov("blend 1")</b></dd>
+</p>
+
+<a name="camera"></a><p><dt><b>camera <i>setting value(s)</i></b></dt>
+<dd>
+Change a camera setting for the current <a href="#cellviewdesc">cell view</a>.
+The valid camera settings and their allowed values are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>angle</b> <i>d</i></td><td width=20></td><td>&ndash;
+set camera angle to <i>d</i> degrees where <i>d</i> is from 0.0 to 360.0</td></tr>
+<tr><td><b>xy</b> <i>x</i> <i>y</i></td><td width=20></td><td>&ndash;
+set camera pan position to <i>x</i>,<i>y</i></td></tr>
+<tr><td><b>zoom</b> <i>z</i></td><td width=20></td><td>&ndash;
+set camera zoom to <i>z</i> where <i>z</i> is from 0.0625 (-16x) to 32.0</td></tr>
+</table>
+</dd>
+</p>
+<p>
+<dd> Example: <b>ov("camera angle 90")</b></dd>
+<dd> Example: <b>ov("camera xy -32 100")</b></dd>
+<dd> Example: <b>ov("camera zoom 3.5")</b></dd>
+</p>
+
+<p>
+<dd>
+The <a href="#cellview">cellview</a> command initializes the
+camera angle to 0 degrees, the x,y position to the centre of the view,
+and the zoom value to 1.
+</dd>
+</p>
+
+<a name="celloption"></a><p><dt><b>celloption <i>option value</i></b></dt>
+<dd>
+Set a display option for the current <a href="#cellviewdesc">cell view</a>.
+The valid options and their allowed values are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>depth</b> <i>d</i></td><td width=20></td><td>&ndash;
+set layer depth to <i>d</i> where <i>d</i> is from 0.0 to 1.0</td></tr>
+<tr><td><b>grid</b> <i>i</i></td><td width=20></td><td>&ndash;
+set grid lines display on (<i>i</i> = 1) or off (<i>i</i> = 0)</td></tr>
+<tr><td><b>gridmajor</b> <i>g</i></td><td width=20></td><td>&ndash;
+set grid lines major interval to <i>g</i> where <i>g</i> is an integer from 0 to 16</td></tr>
+<tr><td><b>hex</b> <i>i</i></td><td width=20></td><td>&ndash;
+set hex display on (<i>i</i> = 1) or off (<i>i</i> = 0)</td></tr>
+<tr><td><b>layers</b> <i>n</i></td><td width=20></td><td>&ndash;
+set number of layers to <i>n</i> where <i>n</i> is an integer from 1 to 10</td></tr>
+<tr><td><b>stars</b> <i>i</i></td><td width=20></td><td>&ndash;
+set stars display on (<i>i</i> = 1) or off (<i>i</i> = 0)</td></tr>
+</table>
+</dd>
+</p>
+<p>
+<dd> Example: <b>ov("celloption depth 0.2")</b></dd>
+<dd> Example: <b>ov("celloption layers 6")</b></dd>
+<dd> Example: <b>ov("celloption hex 1")</b></dd>
+<dd> Example: <b>ov("celloption grid 1")</b></dd>
+<dd> Example: <b>ov("celloption gridmajor 8")</b></dd>
+<dd> Example: <b>ov("celloption stars 1")</b></dd>
+</p>
+
+<p>
+<dd>
+The <a href="#cellview">cellview</a> command initializes the
+depth to 0.05, the number of layers to 1, hex display to 0, grid to 0, gridmajor to 10 and stars to 0.
+</dd>
+</p>
+
+<a name="cellview"></a><p><dt><b>cellview <i>x y wd ht</i></b></dt>
+<dd>
+Create a <a href="#cellviewdesc">cell view</a> enclosed by the given rectangle
+that can be drawn on the overlay.
+The width and height must be from 16 to 4096 and a multiple of 16.
+</dd>
+<dd> Example: <b>ov("cellview -1024 -1024 2048 2048")</b></dd>
+</p>
+
+<a name="copy"></a><p><dt><b>copy <i>x y wd ht clipname</i></b></dt>
+<dd>
+Copy the pixels in the given rectangle from the current render <a href="#target">target</a> into the named
+<a href="#clips">clip</a> for later use in a command like <a href="#paste">paste</a>
+or <a href="#scale">scale</a>.
+If the given width or height is less than 1 then it is treated as an inset from
+the render target's current width or height (this makes it easy to copy the entire
+render target with a command like <b>"copy 0 0 0 0 all"</b>).
+Any parts of the rectangle outside the render target are filled with transparent pixels.
+The clip name can contain any characters except a space.
+</dd>
+<dd> Example: <b>ov("copy 0 0 100 200 tempbox")</b></dd>
+</p>
+
+<a name="create"></a><p><dt><b>create <i>wd ht (clipname)</i></b></dt>
+<dd>
+Create the overlay or if a clip name is specified create a new clip with the given
+width and height. All pixels are initially transparent (their RGBA values are set to 0,0,0,0).
+When creating the overlay the following are also set:
+</dd>
+<p>
+<dd>
+The initial RGBA values used by later drawing commands are set to 255,255,255,255 (opaque white).
+The overlay's initial position is set to topleft,
+the cursor is set to the standard arrow,
+the transform values are set to 1,0,0,1 (identity) and alpha blending is off.
+The initial font for drawing text is the default system font at a size of 10pt
+(see the <a href="#font">font</a> command).
+The <a href="#textoption">text options</a> are set to left alignment
+(for multi-line text) and a transparent background.
+The initial line width (used by the <a href="#ellipse">ellipse</a>, 
+<a href="#line">line</a> and <a href="#lines">lines</a> commands) is set to 1.
+The render <a href="#target">target</a> is set to be the overlay.
+</dd>
+</p>
+<dd> Example: <b>ov("create 400 300")</b></dd>
+<dd> Example: <b>ov("create 400 300 myclip")</b></dd>
+<p>
+<dd>
+Note that the when creating the overlay this command automatically ticks the
+<a href="layer.html#showoverlay">Show Overlay</a> option to ensure the
+overlay will be displayed when the viewport is updated (by calling g.update()
+or the <a href="#update">update</a> command).
+</dd>
+</p>
+
+<a name="cursor"></a><p><dt><b>cursor <i>name</i></b></dt>
+<dd>
+Specify which cursor to use when the mouse moves over a
+non-transparent pixel within the overlay.  The valid cursor names are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>arrow</b></td><td width=20></td><td>    &ndash; standard arrow</td></tr>
+<tr><td><b>cross</b></td><td width=20></td><td>    &ndash; crosshairs</td></tr>
+<tr><td><b>current</b></td><td width=20></td><td>  &ndash; Golly's current cursor (no change)</td></tr>
+<tr><td><b>hand</b></td><td width=20></td><td>     &ndash; hand</td></tr>
+<tr><td><b>hidden</b></td><td width=20></td><td>   &ndash; invisible cursor</td></tr>
+<tr><td><b>pencil</b></td><td width=20></td><td>   &ndash; pencil</td></tr>
+<tr><td><b>pick</b></td><td width=20></td><td>     &ndash; color picker</td></tr>
+<tr><td><b>wait</b></td><td width=20></td><td>     &ndash; a lengthy task is in progress</td></tr>
+<tr><td><b>zoomin</b></td><td width=20></td><td>   &ndash; magnifying glass with "+"</td></tr>
+<tr><td><b>zoomout</b></td><td width=20></td><td>  &ndash; magnifying glass with "-"</td></tr>
+</table>
+</dd>
+<p>
+<dd>
+The previous cursor name is returned.
+</dd>
+<dd> Example: <b>local oldcursor = ov("cursor pencil")</b></dd>
+</p>
+
+<a name="delete"></a><p><dt><b>delete <i>(clipname)</i></b></dt>
+<dd>
+Delete the overlay or if a clip name is specified delete the named clip.
+When deleting the overlay this is equivalent to selecting
+<a href="layer.html#deleteoverlay">Delete Overlay</a> from the Layer menu.
+Note that it is an error to delete a clip that is the current render <a href="#target">target</a>.
+Also note that deleting the overlay will <a href="#stop">stop</a> any sound that is playing.
+</dd>
+<dd> Example: <b>ov("delete")</b></dd>
+<dd> Example: <b>ov("delete myclip")</b></dd>
+</p>
+
+<a name="drawcells"></a><p><dt><b>drawcells</b></dt>
+<dd>
+Draw the cells from the current <a href="#cellviewdesc">cell view</a> onto the render <a href="#target">target</a>.
+The cells will be drawn using the camera settings and colored using the current <a href="#theme">theme</a>.
+Further drawing commands can then be used to draw on top of the cell display. Pixels outside of the
+current <a href="#cellviewdesc">cell view</a> are drawn in the current <a href="prefs:color">grid border color</a>.
+</dd>
+<dd> Example: <b>ov("drawcells")</b></dd>
+</p>
+
+<a name="ellipse"></a><p><dt><b>ellipse <i>x y wd ht</i></b></dt>
+<dd>
+Draw an ellipse inside the given rectangle using the current <a href="#rgba">rgba</a> values onto
+the render <a href="#target">target</a>.
+Any parts of the ellipse outside the render target are automatically clipped.
+A width or height less than 1 is relative to the render target's width or height.
+If the width equals the height (and both are positive) then the result is a circle.
+If alpha blending is turned on then the edges of the ellipse are antialiased.
+The <a href="#lineoption">lineoption width</a> command determines the thickness
+of the ellipse.
+</dd>
+<dd> Example: <b>ov("ellipse 10 10 60 40")</b></dd>
+</p>
+
+<a name="fill"></a><p><dt><b>fill <i>x y wd ht (...x y wd ht)</i></b></dt>
+<dd>
+Fill the given rectangles in the render <a href="#target">target</a> with the current <a href="#rgba">rgba</a> values.
+Any parts of the rectangles outside the render target are automatically clipped.
+If no rectangle is given then the entire render target is filled.
+A width or height less than 1 is relative to the render target's width or height,
+so a command like <b>ov("fill 1 1 -2 -2")</b> would fill all of the render target
+except for a 1 pixel border around the edges.
+</dd>
+<dd> Example: <b>ov("fill 10 10 30 50")</b></dd>
+<dd> &nbsp;or
+<dd> Example: <b>ovt{"fill", 10, 10, 30, 50}</b></dd>
+</p>
+
+<a name="flood"></a><p><dt><b>flood <i>x y</i></b></dt>
+<dd>
+Flood a connected region of pixels in the render <a href="#target">target</a> that match the given starting pixel
+with the current <a href="#rgba">rgba</a> values.
+</dd>
+<dd> Example: <b>ov("flood 10 20")</b></dd>
+</p>
+
+<a name="font"></a><p><dt><b>font <i>fontsize fontname</i></b></dt>
+<dd>
+Set the font used by later <a href="#text">text</a> commands.
+If the font name is not supplied then only the font size will be changed.
+The valid font names are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>default</b></td><td width=20></td><td>          &ndash; standard system font</td></tr>
+<tr><td><b>default-bold</b></td><td width=20></td><td>     &ndash; bold system font</td></tr>
+<tr><td><b>default-italic</b></td><td width=20></td><td>   &ndash; italic system font</td></tr>
+<tr><td><b>mono</b></td><td width=20></td><td>             &ndash; mono-spaced font</td></tr>
+<tr><td><b>mono-bold</b></td><td width=20></td><td>        &ndash; bold mono-spaced font</td></tr>
+<tr><td><b>mono-italic</b></td><td width=20></td><td>      &ndash; italic mono-spaced font</td></tr>
+<tr><td><b>roman</b></td><td width=20></td><td>            &ndash; roman font</td></tr>
+<tr><td><b>roman-bold</b></td><td width=20></td><td>       &ndash; bold roman font</td></tr>
+<tr><td><b>roman-italic</b></td><td width=20></td><td>     &ndash; italic roman font</td></tr>
+</table>
+</dd>
+<p>
+<dd>
+The previous font is returned as a string of the form "fontsize fontname".
+</dd>
+<dd> Example: <b>local oldfont = ov("font 15 roman-bold")</b></dd>
+</p>
+
+<a name="get"></a><p><dt><b>get <i>x y</i></b></dt>
+<dd>
+Return the RGBA values of the given pixel in the render <a href="#target">target</a>.
+All values will be from 0 to 255.
+</dd>
+<dd>
+For the string version the values are returned as a string of the form "red green blue alpha".
+If the given pixel is outside the render target then "" is returned.
+</dd>
+<dd> Example: <b>local RGBA = ov("get 10 20")</b></dd>
+<dd>
+For the table version the values are returned individually.
+If the given pixel is outside the render target then -1 is returned for each component.
+</dd>
+<dd> Example: <b>local R, G, B, A = ovt{"get", 10, 20}</b></dd>
+</p>
+
+<a name="line"></a><p><dt><b>line <i>x1 y1 x2 y2 (...xn yn)</i></b></dt>
+<dd>
+Draw one or more connected lines of pixels between the supplied coordinates <i>x1 y1</i> to <i>xn yn</i>
+on the render <a href="#target">target</a> using the current <a href="#rgba">rgba</a> values.
+Any pixels outside the render target edges are automatically clipped.
+If alpha blending is turned on then the lines are antialiased.
+The <a href="#lineoption">lineoption width</a> command determines
+the thickness of the lines.
+</dd>
+<dd>Examples:</dd>
+<dd><i>-- draw line from (10, 20) to (50, 60)</i></dd>
+<dd><b>ov("line 10 20 50 60")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"line", 10, 20, 50, 60}</b></dd>
+<dd><i>-- draw triangle with vertices at (0, 0), (100, 0) and (50, 100)</i></dd>
+<dd><b>ov("line 0 0 100 0 50 100 0 0")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"line", 0, 0, 100, 0, 50, 100, 0, 0}</b></dd>
+</p>
+
+<a name="lines"></a><p><dt><b>lines <i>x1 y1 x2 y2 (...xn1 yn1 xn2 yn2)</i></b></dt>
+<dd>
+Draw one or more separate lines of pixels between the supplied pairs of coordinates <i>x1 y1</i> to <i>x2 y2</i>
+on the render <a href="#target">target</a> using the current <a href="#rgba">rgba</a> values.
+Any pixels outside the render target edges are automatically clipped.
+If alpha blending is turned on then the lines are antialiased.
+The <a href="#lineoption">lineoption width</a> command determines
+the thickness of the lines.
+</dd>
+<dd>Examples:</dd>
+<dd><i>-- draw line from (10, 20) to (50, 60)</i></dd>
+<dd><b>ov("lines 10 20 50 60")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"lines", 10, 20, 50, 60}</b></dd>
+<dd><i>-- draw line from (0, 0) to (100, 0) and another line from (50, 25) to (150, 25)</i></dd>
+<dd><b>ov("lines 0 0 100 0 50 25 150 25")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"lines", 0, 0, 100, 0, 50, 25, 150, 25}</b></dd>
+</p>
+
+<a name="lineoption"></a><p><dt><b>lineoption <i>option value</i></b></dt>
+<dd>
+Set an option used by the <a href="#ellipse">ellipse</a>, <a href="#line">line</a> and <a href="#lines">lines</a> commands.
+There is currently one valid option:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b><a name="linewidth"></a>width</b> <i>w</i></td><td width=20></td><td>&ndash;
+set the line width to an integer from 1 to 10000.
+</table>
+<p>
+<dd>
+The previous line width is returned as a string.
+The <a href="#create">create</a> command initializes the line width to 1.
+</dd>
+</p>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td>Example: <b>local oldwidth = ov("lineoption width 3")</b></td><tr>
+</table>
+</dd>
+</p>
+
+<a name="load"></a><p><dt><b>load <i>x y file</i></b></dt>
+<dd>
+Load the given BMP/GIF/PNG/TIFF file into the render <a href="#target">target</a> at the given location.
+Any pixels outside the render target edges are automatically clipped.
+Return the total size of the image (including any clipped portions) as a
+string of the form "width height".  Note that it's sometimes desirable to call
+this command twice: the 1st call can specify a location completely outside
+the render target just to get the image's width and height; the 2nd call can then
+use those values to do things like center the image within the render target.
+</dd>
+<dd> Example: <b>local wdht = ov("load 99999 99999 foo.png")</b></dd>
+</p>
+
+<a name="optimize"></a><p><dt><b>optimize <i>clipname</i></b></dt>
+<dd>
+Optimizes the named clip for improved <a href="#paste">paste</a> performance when
+using <a href="#blending">alpha blending</a>.
+Returns the bounding box of non-zero alpha pixels within the clip as a string
+of the form "x y width height".
+A clip that is modified after optimization must be optimized again before use to get the
+performance benefit.
+Especially effective for text rendering and used automatically by the
+<a href="#maketext">op.maketext</a> function.
+</dd>
+<dd> Example: <b>local x, y, w, h = ov("optimize textclip")</b></dd>
+</p>
+
+<a name="paste"></a><p><dt><b>paste <i>x1 y1 (...xn yn) clipname</i></b></dt>
+<dd>
+Paste the named clip (created by an earlier <a href="#create">create</a>, <a href="#copy">copy</a>
+or <a href="#text">text</a> command) into the render <a href="#target">target</a> at the given location(s).
+Any pixels outside the render target edges are automatically clipped.
+</dd>
+<dd> Examples:</dd>
+<dd><i>-- paste the tempbox clip at (10, 20)</i></dd>
+<dd><b>ov("paste 10 20 tempbox")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"paste", 10, 20, "tempbox"}</b></dd>
+<dd><i>-- paste the tempbox clip at (10, 20), (100, 20) and (100, 50)</i></dd>
+<dd><b>ov("paste 10 20 100 20 100 50 tempbox")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"paste", 10, 20, 100, 20, 100, 50, "tempbox"}</b></dd>
+</p>
+<p>
+<dd>
+If multiple locations are given then the clip is drawn at the locations in the order specified.
+</dd>
+</p>
+
+<a name="position"></a><p><dt><b>position <i>pos</i></b></dt>
+<dd>
+Specify where the overlay is to be displayed within the current layer.
+The valid positions are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>topleft</b></td><td width=20></td><td>      &ndash; top left corner</td></tr>
+<tr><td><b>topright</b></td><td width=20></td><td>     &ndash; top right corner</td></tr>
+<tr><td><b>bottomright</b></td><td width=20></td><td>  &ndash; bottom right corner</td></tr>
+<tr><td><b>bottomleft</b></td><td width=20></td><td>   &ndash; bottom left corner</td></tr>
+<tr><td><b>middle</b></td><td width=20></td><td>       &ndash; middle of layer</td></tr>
+</table>
+</dd>
+<p>
+<dd> Example: <b>ov("position middle")</b></dd>
+</p>
+
+<a name="replace"></a><p><dt><b>replace <i>red green blue alpha</i></b></dt>
+<dd>
+Replace pixels with color <i>red green blue alpha</i> in the render <a href="#target">target</a> with the current
+<a href="#rgba">rgba</a> values.
+Returns the number of pixels replaced as a string.
+<dd> Example:</dd>
+<dd><i>-- replace opaque black pixels with semi-transparent blue pixels in clip named 'myclip'</i></dd>
+<dd><b>local oldtarget = ov("target myclip")</b></dd>
+<dd><b>ov("rgba 0 0 255 128")</b></dd>
+<dd><b>local replaced = ov("replace 0 0 0 255 myclip")</b></dd>
+<dd><b>ov("target "..oldtarget)</b></dd>
+</p>
+<p>
+<dd>
+There are two special characters that can be used in the color specification for
+more advanced matches: <b>!</b> and <b>*</b>.
+A color component may be specified as the wildcard <b>*</b> which means match any value for
+that component.
+</dd>
+<dd> Example:</dd>
+<dd><i>-- replace any opaque pixel with opaque blue</i></dd>
+<dd><b>ov(op.blue)</b></dd>
+<dd><b>local replaced = ov("replace * * * 255")</b></dd>
+</p>
+<p>
+<dd>
+If the match specification is prefixed with <b>!</b> then pixels that don't match
+the specification are replaced.
+</dd>
+<dd> Example:</dd>
+<dd><i>-- replace any pixel that isn't white with yellow</i></dd>
+<dd><b>ov(op.yellow)</b></dd>
+<dd><b>local replaced = ov("replace !255 255 255 255")</b></dd>
+</p>
+<p>
+<dd>
+Alternatively if the alpha specification is prefixed with <b>!</b> then pixels
+that don't have the specified alpha value are replaced.
+</dd>
+<dd> Example:</dd>
+<dd><i>-- replace any non-opaque pixel with opaque blue</i></dd>
+<dd><b>ov(op.blue)</b></dd>
+<dd><b>local replaced = ov("replace * * * !255")</b></dd>
+</p>
+<p>
+<dd>
+Normally when a match is found the clip pixel is replaced with the current
+<a href="#rgba">rgba</a> values. This can be overridden by postfixing
+one or more color components with <b>r</b>, <b>g</b>, <b>b</b>, <b>a</b> or <b>#</b>.
+Each color component in the clip pixel can either be left unchanged
+(in the case of <b>#</b>) or replaced with the specified color component from the clip pixel.
+</dd>
+<dd> Examples:</dd>
+<dd><i>-- make transparent pixels opaque (r g b 0 -> r g b 255)</i></dd>
+<dd><b>ov("rgba 0 0 0 255")</b></dd>
+<dd><b>local replaced = ov("replace *# *# *# 0")</b></dd>
+</p>
+<p>
+<dd><i>-- swap the red and green components (r g b a -> g r b a)</i></dd>
+<dd><b>local replaced = ov("replace *g *r *# *#")</b></dd>
+</p>
+<p>
+<dd><i>-- set the pixels to opaque gray based on the alpha level (r g b a -> a a a 255)</i></dd>
+<dd><b>ov("rgba 0 0 0 255")</b></dd>
+<dd><b>local replaced = ov("replace *a *a *a *")</b></dd>
+</p>
+<p>
+<dd>
+If the postfix character is followed by <b>-</b> then the component value is inverted.
+</dd>
+<dd> Examples:</dd>
+<dd><i>-- invert the r g b components but leave alpha unchanged (r g b a -> 255-r 255-g 255-b a)</i></dd>
+<dd><b>local replaced = ov("replace *#- *#- *#- *#")</b></dd>
+</p>
+<p>
+<dd><i>-- make transparent pixels opaque and vice versa (r g b a -> r g b 255-a)</i></dd>
+<dd><b>local replaced = ov("replace *# *# *# *#-")</b></dd>
+</p>
+<p>
+<dd>
+Color components can also be adjusted by using <b>--</b> to decrement, <b>++</b> to increment,
+<b>-<i>value</i></b> to subtract a constant or <b>+<i>value</i></b> to add a constant.
+Component values are clamped to the range 0 to 255.
+</dd>
+<dd> Examples:</dd>
+<dd><i>-- increase the brightness of all pixels</i></dd>
+<dd><b>local replaced = ov("replace *#+50 *#+50 *#+50 *#")</b></dd>
+</p>
+<p>
+<dd><i>-- fade all pixels to black</i></dd>
+<dd><b>while tonumber(ov("replace *#-- *#-- *#-- *#")) > 0 do</b></dd>
+<dd><b>&nbsp;&nbsp;&nbsp;&nbsp;ov("update")</b></dd>
+<dd><b>end</b></dd>
+</p>
+<p>
+<dd>
+The postfixes can also be used without a target component. In which case the current
+<a href="#rgba">rgba</a> values are adjusted.
+</dd>
+<dd> Example:</dd>
+<dd><i>-- replace green pixels with the current drawing color minus 32 alpha (0 255 0 255 -> 255 0 0 96)</i></dd>
+<dd><b>ov("rgba 255 0 0 128")</b></dd>
+<dd><b>local replaced = ov("replace 0 255 0 255-32")</b></dd>
+</p>
+
+<a name="resize"></a><p><dt><b>resize <i>wd ht (clipname)</i></b></dt>
+<dd>
+Resize the overlay or if a clip name is specified resize the named clip.
+The previous size is returned as a string of the form "width height".
+This command is typically used if a window resize is detected and you
+wish to keep the overlay covering all of the current layer.
+Note that all pixels in the resized overlay/clip become transparent
+(their RGBA values are reset to 0,0,0,0).
+</dd>
+<dd> Example: <b>local oldsize = ov("resize 1000 800")</b></dd>
+<dd> Example: <b>local oldsize = ov("resize 300 240 myclip")</b></dd>
+</p>
+
+<a name="rgba"></a><p><dt><b>rgba <i>red green blue alpha</i></b></dt>
+<dd>
+Set the current RGBA values used by later drawing commands
+and return the old values. All values are from 0 to 255.
+The commands that use the current RGBA values are:
+<a href="#ellipse">ellipse</a>,
+<a href="#fill">fill</a>,
+<a href="#flood">flood</a>,
+<a href="#line">line</a>,
+<a href="#lines">lines</a>,
+<a href="#replace">replace</a>,
+<a href="#set">set</a> and
+<a href="#text">text</a>.
+</dd>
+<dd>
+For the string version the values are returned as a string of the form "red green blue alpha".
+</dd>
+<dd> Example: <b>local oldrgba = ov("rgba 255 0 0 255")</b></dd>
+<dd>
+For the table version the values are returned as a table of the form {"rgba", red, green, blue, alpha}.
+</dd>
+<dd> Example: <b>local oldrgba = ovt{"rgba", 255, 0, 0, 255}</b></dd>
+</p>
+
+<a name="save"></a><p><dt><b>save <i>x y wd ht file</i></b></dt>
+<dd>
+Save the pixels in the given rectangle of the render <a href="#target">target</a> in the given PNG file.
+An error will occur if any part of the rectangle is outside the render target.
+If the given width or height is less than 1 then it is treated as an inset from
+the render target's current width or height (this makes it easy to save the entire
+render target with a command like <b>"save 0 0 0 0 overlay.png"</b>).
+</dd>
+<dd> Example: <b>ov("save 0 0 100 80 "..g.getdir("temp").."foo.png")</b></dd>
+</p>
+
+<a name="set"></a><p><dt><b>set <i>x1 y1 (...xn yn)</i></b></dt>
+<dd>
+Set the specified pixels in the render <a href="#target">target</a> to the current <a href="#rgba">rgba</a> values.
+Pixels outside the render target are silently ignored.
+</dd>
+<dd>Examples:</dd>
+<dd><i>-- set pixel at (10, 20)</i></dd>
+<dd><b>ov("set 10 20")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"set", 10, 20}</b></dd>
+<dd><i>-- set pixels at (10, 20), (15, 25) and (16, 25)</i></dd>
+<dd><b>ov("set 10 20 15 25 16 25")</b></dd>
+<dd> &nbsp;or
+<dd><b>ovt{"set", 10, 20, 15, 25, 16, 25}</b></dd>
+</p>
+
+<a name="scale"></a><p><dt><b>scale <i>quality x y wd ht clipname</i></b></dt>
+<dd>
+Paste the named clip into the current render <a href="#target">target</a>, scaling it so it fits into the
+specified rectangle.  Any pixels outside the render target edges are automatically clipped.
+The given <i>quality</i> must be one of these strings:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>best</b></td><td width=20></td><td>&ndash;
+use a high quality, but slow, scaling algorithm
+<tr><td><b>fast</b></td><td width=20></td><td>&ndash;
+use a fast, but lower quality, scaling algorithm
+</table>
+</dd>
+<p>
+<dd> Example: <b>ov("scale best 10 10 100 200 image")</b></dd>
+</p>
+
+<a name="sound"></a><p><dt><b>sound <i>(command (soundfile))</i></b></dt>
+<dd>
+Controls playback of audio files. If present the <i>soundfile</i> argument must point to a WAV or OGG format
+file containing the sound to be played. Multiple sounds can be played simultaneously.
+</dd>
+</p>
+<p><dd>
+If the command is invoked with no arguments then it returns a string indicating whether sound is available.
+<table cellspacing=0 cellpadding=0>
+<tr><td width=20><b>0</b></td><td>Sound support is not available</td></tr>
+<tr><td width=20><b>1</b></td><td>Sound support is available but failed to initialize</td></tr>
+<tr><td width=20><b>2</b></td><td>Sound support is available and ready to use</td></tr>
+</table>
+</dd>
+</p>
+<p><dd>
+There are seven sound <i>commands</i>:
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>play <i>soundfile (level)</i></b></td></tr>
+<tr><td>Play the named <i>soundfile</i> at volume <i>level</i> asynchronously and return immediately. The volume is from 0.0 (silent) to 1.0 (maximum) and is set to maximum if not specified.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><b>loop <i>soundfile (level)</i></b></td></tr>
+<tr><td>Play the named <i>soundfile</i> at volume <i>level</i> asynchronously and loop until the <a href="#stop">stop</a> command is used.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a name="stop"></a><b>stop <i>(soundfile)</i></b></td></tr>
+<tr><td>Stop all sound playback or just the specified <i>soundfile</i>.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a name="pause"></a><b>pause <i>(soundfile)</i></b></td><td width=20></td></tr>
+<tr><td>Pause all sound playback or just the specified <i>soundfile</i>.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a name="stop"></a><b>resume <i>(soundfile)</i></b></td></tr>
+<tr><td>Resume all sound playback or just the specified <i>soundfile</i>.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a name="volume"></a><b>volume <i>soundfile level</i></b></td></tr>
+<tr><td>Set the named <i>soundfile</i> volume <i>level</i> from 0.0 (silent) to 1.0 (maximum). This is typically used to change the volume of a sound that is already playing.</td></tr>
+<tr><td>&nbsp;</td></tr>
+<tr><td><a name="state"></a><b>state <i>(soundfile)</i></b></td></tr>
+<tr><td>Returns the playback state of <i>"playing"</i> if any sound (or the specified sound) is playing, <i>"paused"</i> if the specified sound is paused or <i>"stopped"</i> otherwise.
+</table>
+</dd>
+<p><dd>
+Notes:
+<p><dd>
+<ul>
+<li>Deleting the overlay will stop any sounds that are playing.</li>
+<li>The <b>play</b> command returns the empty string "" if successful and an error message otherwise.</li>
+<li>The <b>state</b> command will return <i>"unknown"</i> if the specified sound is not found.</li>
+<li>If sound support is not available or failed to initialize then the sound commands will silently do nothing.</li>
+</dd>
+</p>
+<p>
+<dd> Example: <b>ov("sound play beep.wav 0.5") -- play beep.wav at half volume</b></dd>
+<dd> Example: <b>ov("sound play beep.wav") -- play beep.wav at full volume</b></dd>
+<dd> Example: <b>ov("sound stop") -- stop all sounds playing</b></dd>
+<dd> Example: <b>ov("sound loop background.ogg") -- play background.ogg in a loop at full volume</b></dd>
+<dd> Example: <b>ov("sound volume background.ogg 0.7") -- set background.ogg volume to 0.7</b></dd>
+<dd> Example: <b>ov("sound pause background.ogg") -- pause playback of background.ogg</b></dd>
+<dd> Example: <b>ov("sound resume") -- resume playback of all paused sounds</b></dd>
+</p>
+
+<a name="target"></a><p><dt><b>target <i>(clipname)</i></b></dt>
+<dd>
+Set the render target to the named <a href="#clips">clip</a> or to the overlay if no
+clip is specified. All subsequent drawing commands will use the new render target.
+Returns the previous target as a string (an empty string if it was the overlay).
+It is an error to attempt to <a href="#delete">delete</a> a clip while it is the
+render target.
+The commands that use the render target are:
+<a href="#copy">copy</a> (as the source),
+<a href="#drawcells">drawcells</a>,
+<a href="#ellipse">ellipse</a>,
+<a href="#fill">fill</a>,
+<a href="#flood">flood</a>,
+<a href="#get">get</a> (as the source),
+<a href="#line">line</a>,
+<a href="#lines">lines</a>,
+<a href="#load">load</a>,
+<a href="#paste">paste</a>,
+<a href="#replace">replace</a>,
+<a href="#save">save</a> (as the source),
+<a href="#scale">scale</a> and
+<a href="#set">set</a>.
+</dd>
+<dd> Example: <b>local oldtarget = ov("target myclip")</b></dd>
+</p>
+
+<a name="text"></a><p><dt><b>text <i>clipname one or more lines of text ...</i></b></dt>
+<dd>
+Create a named <a href="#clips">clip</a> containing the given text in the
+current font (as set by the most recent <a href="#font">font</a> command).
+Return the dimensions of the clip as a string of the form "width height descent".
+The descent is the number of pixels under the baseline (useful if you want to
+place text with different sized fonts on the same line).
+</dd>
+<p><dd>
+The text's color depends on the most recent <a href="#rgba">rgba</a> command.
+The text background color can be set with the <a href="#textbg">textoption background</a>
+command.  By default the text has a transparent background, so you'll probably need to set
+<a href="#blend">blend</a> to 1 before drawing the text with <a href="#paste">paste</a>.
+If you specify an opaque background then there's no need to turn on alpha blending
+when doing the paste, so drawing such text will be significantly faster.
+You can also specify the alignment of multi-line text with the
+<a href="#textalign">textoption align</a> command.
+</dd>
+<p>
+<dd> Example: <b>local dimens = ov("text tempclip First line.\nSecond line.")</b></dd>
+</p>
+
+<a name="textoption"></a><p><dt><b>textoption <i>option value</i></b></dt>
+<dd>
+Set a display option for the <a href="#text">text</a> command.
+The valid options and their allowed values are:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b><a name="textalign"></a>align</b> <i>alignment</i></td><td width=20></td><td>&ndash;
+set the alignment of multi-line text to <b>left</b>, <b>right</b> or <b>center</b>
+<tr><td><b><a name="textbg"></a>background</b> <i>r g b a</i></td><td width=20></td><td>&ndash;
+set the text background to the given RGBA values (all from 0 to 255)
+</table>
+</dd>
+<p>
+<dd>
+The <a href="#create">create</a> command initializes the
+text options to left alignment and a transparent background.
+Both options return their previous setting as a string:
+the returned alignment value will be "left", "right" or "center";
+the returned background will be a string of the form "red green blue alpha".
+</dd>
+</p>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td>Example: <b>local oldalign = ov("textoption align right")</b></td><tr>
+<tr><td>Example: <b>local oldbackground = ov("textoption background 255 0 0 255")</b></td></tr>
+</table>
+</dd>
+</p>
+
+<a name="theme"></a><p><dt><b>theme <i>r1 g1 b1 r2 g2 b2 r3 g3 b3 r4 g4 b4 r5 g5 b5 (alivea, deada, unoccupieda, bordera)</i></b></dt>
+<dd>
+Define the color theme for drawing the current <a href="#cellviewdesc">cell view</a>.
+Themes allow better visualization of patterns because they highlight history
+and longevity of cells. The arguments define 5 colors:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><i><b>r1 g1 b1</b></i></td><td width=20></td><td><i>born</i></td><td>&nbsp;&nbsp;&nbsp;cell just born</td></tr>
+<tr><td><i><b>r2 g2 b2</b></i></td><td width=20></td><td><i>alive</i></td><td>&nbsp;&nbsp;&nbsp;cell alive for at least 63 generations</td></tr>
+<tr><td><i><b>r3 g3 b3</b></i></td><td width=20></td><td><i>died</i></td><td>&nbsp;&nbsp;&nbsp;cell just died</td></tr>
+<tr><td><i><b>r4 g4 b4</b></i></td><td width=20></td><td><i>dead</i></td><td>&nbsp;&nbsp;&nbsp;cell dead for at least 63 generations</td></tr>
+<tr><td><i><b>r5 g5 b5</b></i></td><td width=20></td><td><i>unoccupied</i></td><td>&nbsp;&nbsp;&nbsp;cell never occupied</td></tr>
+</table>
+</dd>
+<p>
+<dd> Example: <b>ov("theme 0 255 255 255 255 255 0 0 255 0 0 47 0 0 0")</b></dd>
+<dd>
+New cells are drawn in the <i>born</i> color (cyan 0 255 255).</dd>
+<dd>
+If they stay alive they fade from the <i>born</i> color to the <i>alive</i> color
+(white 255 255 255) over the next 63 generations. If the cell stays alive after that it remains
+in the <i>alive</i> color. This provides a visual representation of cell longevity.</dd>
+<dd>
+Cells are drawn in the <i>died</i> color (blue 0 0 255) when then they die.</dd>
+<dd>
+If they stay dead they fade from the <i>died</i> color to the <i>dead</i> color
+(dark blue 0 0 47) over the next 63 generations. If the cell stays dead after that it
+remains in the <i>dead</i> color. This provides a visual representation of cell history.</dd>
+<dd>
+Cells that have never been occupied are drawn in the <i>unoccupied</i> color (black 0 0 0).</dd>
+</p>
+<p>
+<dd>
+Optionally you can specify the alpha values for the different cell types:
+</dd>
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><i><b>alivea</b></i></td><td>&nbsp;&nbsp;&nbsp;<i>born</i> to <i>alive</i></td></tr>
+<tr><td><i><b>deada</b></i></td><td>&nbsp;&nbsp;&nbsp;<i>died</i> to <i>dead</i></td></tr>
+<tr><td><i><b>unoccupieda</b></i></td><td>&nbsp;&nbsp;&nbsp;<i>unoccupied</i></td></tr>
+<tr><td><i><b>bordera</b></i></td><td>&nbsp;&nbsp;&nbsp;<i>border</i></td></tr>
+</table>
+</dd>
+<p>
+<dd>
+The border color RGB components are read from the View Preference
+<a href="prefs:color">grid border color</a>. If you don't want a border drawn around the <a href="#cellviewdesc">cell view</a>
+then set <i><b>bordera</b></i> to 0 (transparent).
+<p>
+<dd>
+If you omit alpha values then they all default to 255 (opaque).
+<p>
+<dd>
+If no theme is specified then Golly's default colors for the pattern are used. If you want to switch
+off the theme then use the command <b>ov("theme -1")</b>.
+</p>
+<p>
+<dd>
+There is a set of <a href="#themes">predefined themes</a> in the <a href="#oplus">oplus</a> package using
+which the example above would become: <b>ov(op.theme1)</b> or <b>ov(op.themes[1])</b>.
+</dd>
+</p>
+
+<a name="transform"></a><p><dt><b>transform <i>axx axy ayx ayy</i></b></dt>
+<dd>
+Set the <a href="#affine">affine transformation</a> values used by later
+<a href="#paste">paste</a> commands and return the old values as a string
+of the form "axx axy ayx ayy".
+</dd>
+<dd> Example: <b>local oldt = ov("transform 0 -1 1 0")</b></dd>
+</p>
+
+<a name="update"></a><p><dt><b>update</b></dt>
+<dd>
+Tell Golly to update the overlay without drawing the underlying layer.
+This will be faster than calling g.update() but should only be used
+in cases where the overlay covers the entire layer <em>and</em> all
+pixels in the overlay are opaque.
+</dd>
+<dd> Example: <b>ov("update")</b></dd>
+</p>
+
+<a name="updatecells"></a><p><dt><b>updatecells</b></dt>
+<dd>
+Update the current <a href="#cellviewdesc">cell view</a> using the cells in
+the current universe.
+This command should typically be used every time the universe changes.
+</dd>
+<dd> Example: <b>ov("updatecells")</b></dd>
+</p>
+
+<a name="xy"></a><p><dt><b>xy</b></dt>
+<dd>
+Return the current mouse position within the overlay as a string
+of the form "x y", or "" if the mouse is outside the overlay.
+The x and y values are pixel coordinates.
+The top left pixel in the overlay is "0 0"; x values increase
+to the right and y values increase downwards.
+</dd>
+<dd> Example: <b>local mousepos = ov("xy")</b></dd>
+</p>
+
+
+<p><a name="blending"></a>&nbsp;<br>
+<font size=+1><b>Alpha blending</b></font>
+
+<p>
+Alpha blending is a way of drawing translucent pixels on top of existing
+pixels to get nicer looking results.  When an overlay is created, alpha blending
+is initially turned off.  To turn it on a script needs to call "blend 1", for blending
+with any target, or "blend 2", for faster blending when you know the target
+pixels are opaque.
+Consider this simple script which draws a translucent blue square on top
+of a translucent red square (both on top of an opaque white background):
+
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+<b>local g = golly()</b><br>
+<b>local ov = g.overlay</b><br>
+<b>ov("create 100 80")</b><br>
+<b>ov("fill")</b><br>
+<b>ov("blend 1")</b><br>
+<b>ov("rgba 255 0 0 128")</b><br>
+<b>ov("fill 10 10 50 50")</b><br>
+<b>ov("rgba 0 0 255 128")</b><br>
+<b>ov("fill 30 20 50 50")</b>
+</td>
+<td valign=top width=20> </td>
+<td valign=center>
+<table cellspacing=0 cellpadding=0>
+<tr><td><img src="images/blend1.png"></td></tr>
+<tr><td align=center>blend 1</td></tr>
+</table>
+</td>
+<td valign=top width=20> </td>
+<td valign=center>
+<table cellspacing=0 cellpadding=0>
+<tr><td><img src="images/blend0.png"></td></tr>
+<tr><td align=center>blend 0</td></tr>
+</table>
+</td>
+</tr>
+</table>
+</dd>
+
+<p>
+The left image shows the resulting overlay.  The right image shows
+the overlay produced by the same script but with the "blend 1" line removed
+(the grid lines are from the layer underneath the overlay).
+
+<p>
+Note that drawing with alpha blending on is significantly slower than drawing
+with it off, so it's a good idea to only turn it on when necessary.
+The overlay commands that can do alpha blending are:
+<a href="#ellipse">ellipse</a>,
+<a href="#fill">fill</a>,
+<a href="#flood">flood</a>,
+<a href="#line">line</a>,
+<a href="#lines">lines</a>,
+<a href="#load">load</a>,
+<a href="#paste">paste</a>,
+<a href="#scale">scale</a>,
+<a href="#set">set</a>.
+
+
+<p><a name="clips"></a>&nbsp;<br>
+<font size=+1><b>Using clips</b></font>
+
+<p>
+Overlay scripts can use multiple "clipboards" called clips.
+A clip is simply a chunk of memory containing a rectangular area of pixels.
+Each clip has a unique name consisting of any characters except a space.
+Clips can be created using three commands:
+<a href="#create">create</a>, <a href="#copy">copy</a> and <a href="#text">text</a>.
+Clips can be the render <a href="#target">target</a> for any of the drawing commands.
+
+<p>
+The following script illustrates the use of clips.  It creates a tiled
+background pattern on which some translucent text is drawn.
+The image on the right shows the resulting overlay.
+
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+<b>local g = golly()</b><br>
+<b>local ov = g.overlay</b><br>
+<b>ov("create 199 177")</b><br>
+<b>ov("rgba 255 255 0 255")</b><br>
+<b>ov("fill")</b><br>
+-- create the tile<br>
+<b>ov("rgba 0 0 0 255")</b><br>
+<b>ov("line 10 0 0 20")</b><br>
+<b>ov("line 10 0 20 20")</b><br>
+<b>ov("line 0 20 20 20")</b><br>
+<b>ov("rgba 200 200 255 255")</b><br>
+<b>ov("flood 10 10")</b><br>
+<b>ov("copy 0 0 21 21 mytile")</b><br>
+-- tile the overlay<br>
+<b>for y = 0, 177, 21 do</b><br>
+<b>&nbsp;&nbsp;&nbsp;for x = 0, 199, 21 do</b><br>
+<b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ov("paste "..x.." "..y.." mytile")</b><br>
+<b>&nbsp;&nbsp;&nbsp;end</b><br>
+<b>end</b><br>
+-- create some translucent red text<br>
+<b>ov("rgba 255 0 0 180")</b><br>
+<b>ov("font 60 roman-bold")</b><br>
+<b>ov("text mytext Golly")</b><br>
+<b>ov("blend 1")</b><br>
+<b>ov("paste 10 10 mytext")</b>
+</td>
+<td valign=top width=20> </td>
+<td valign=center>
+<table cellspacing=0 cellpadding=0>
+<tr><td><img src="images/clips.png"></td></tr>
+</table>
+</td>
+</tr>
+</table>
+</dd>
+
+
+<p><a name="affine"></a>&nbsp;<br>
+<font size=+1><b>Affine transformations</b></font>
+
+<p>
+The <a href="#transform">transform</a> command allows a limited set of
+affine transformations, namely rotation by multiples of 90 degrees and
+reflection about the x, y or diagonal axes.  The following script shows
+how text can be rotated or reflected.  Instead of using explicit
+transform commands it uses mnemonic <a href="#synonyms">synonyms</a>
+defined in the <a href="#oplus">oplus</a> package.  The image on the right shows
+the resulting overlay.
+
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+<b>local g = golly()</b><br>
+<b>local ov = g.overlay</b><br>
+<b>local op = require "oplus"</b><br>
+<b>ov("create 200 380")</b><br>
+<b>ov("fill")</b><br>
+<b>ov("blend 1")</b><br>
+<b>ov("font 12 default-bold")</b><br>
+-- do rotations<br>
+<b>ov("rgba 0 0 255 255")</b><br>
+<b>ov("text temp ROTATE")</b><br>
+<b>ov("set 100 100")</b><br>
+<b>ov("paste 100 100 temp")</b><br>
+<b>ov(op.rcw)</b><br>
+<b>ov("paste 100 100 temp")</b><br>
+<b>ov(op.racw)</b><br>
+<b>ov("paste 100 100 temp")</b><br>
+<b>ov(op.r180)</b><br>
+<b>ov("paste 100 100 temp")</b><br>
+-- do reflections<br>
+<b>ov("rgba 255 0 0 255")</b><br>
+<b>ov(op.identity)</b><br>
+<b>ov("text temp - REFLECT")</b><br>
+<b>ov("set 100 270")</b><br>
+<b>ov("paste 100 270 temp")</b><br>
+<b>ov(op.flip_x)</b><br>
+<b>ov("paste 100 270 temp")</b><br>
+<b>ov(op.flip_y)</b><br>
+<b>ov("paste 100 270 temp")</b><br>
+<b>ov(op.swap_xy)</b><br>
+<b>ov("paste 100 270 temp")</b><br>
+<b>ov(op.swap_xy_flip)</b><br>
+<b>ov("paste 100 270 temp")</b>
+</td>
+<td valign=top width=20> </td>
+<td valign=center>
+<table cellspacing=0 cellpadding=0>
+<tr><td><img src="images/transforms.png"></td></tr>
+</table>
+</td>
+</tr>
+</table>
+</dd>
+
+
+<p><a name="cellviewdesc"></a>&nbsp;<br>
+<font size=+1><b>Cell view</b></font>
+
+<p>
+A cell view is a flexible way of displaying cells from the universe onto the overlay.
+A number of steps are required:
+
+<p>
+<ol>
+<li>
+Use the <a href="#cellview">cellview</a> command to specify the rectangle of cells
+from the universe that you want to display.
+<li>
+Either use the current pattern colors or pick a theme with the
+<a href="#theme">theme</a> command.
+<li>
+Use the <a href="#camera">camera</a> and <a href="#celloption">celloption</a>
+commands to determine how you want to project the cells onto the overlay.
+<li>
+Whenever cells change in the universe you should use the
+<a href="#updatecells">updatecells</a> command to refresh the cell view.
+<li>
+To draw the cells onto the overlay use the <a href="#drawcells">drawcells</a> command.
+If the cells don't change and you want to change the camera or theme then just
+use drawcells after the appropriate camera and theme commands.
+</ol>
+
+<p>
+Here is a simple example:
+
+<p>
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr>
+<td valign=top>
+-- create an overlay the size of the current layer<br>
+<b>local g = golly()</b><br>
+<b>local ov = g.overlay</b><br>
+<b>local viewwd, viewht = g.getview(g.getlayer())</b><br>
+<b>ov("create "..viewwd.." "..viewht)</b><br>
+-- open example pattern<br>
+<b>g.open(g.getdir("app").."Patterns/Life/Methuselahs/rabbits.lif")</b><br>
+-- create a cell view using a theme<br>
+<b>ov("cellview -256 -256 512 512")</b><br>
+<b>ov("theme 0 255 255 255 255 255 0 0 255 0 0 47 0 0 0")</b><br>
+-- set camera 14.5x zoom and 30 degree rotation<br>
+<b>ov("camera zoom 14.5")</b><br>
+<b>ov("camera angle 30")</b><br>
+<b>ov("drawcells")</b><br>
+<b>ov("update")</b><br>
+-- run for 1000 generations<br>
+<b>for i = 1, 1000 do</b><br>
+<b>&nbsp;&nbsp;&nbsp;&nbsp;g.run(1)</b><br>
+<b>&nbsp;&nbsp;&nbsp;&nbsp;ov("updatecells")</b><br>
+<b>&nbsp;&nbsp;&nbsp;&nbsp;ov("drawcells")</b><br>
+<b>&nbsp;&nbsp;&nbsp;&nbsp;ov("update")</b><br>
+<b>end</b><br>
+-- delete the overlay<br>
+<b>ov("delete")</b>
+</td>
+</tr>
+</table>
+</dd>
+
+<p>
+To see the above script in action, select and copy the lines to the
+clipboard, then select Run Clipboard from the File menu. For a more
+complex example see <a href="edit:Scripts/Lua/lifeviewer.lua">lifeviewer.lua</a>.
+
+
+<p><a name="oplus"></a>&nbsp;<br>
+<font size=+1><b>The oplus package</b></font>
+
+<p>
+The <b>oplus</b> package provides a high-level interface to the overlay commands
+which implement
+<a href="#oplusgraphics">graphics</a>,
+<a href="#oplustext">text</a>,
+<a href="#oplusui">user interface</a> and
+<a href="#oplusutil">utility</a>
+functions.
+The package consists of a set of .lua files stored in the Scripts/Lua/oplus
+directory.  The following functions are available after a script calls
+<b>local op = require "oplus"</b>
+(see <a href="edit:Scripts/Lua/oplus/init.lua">init.lua</a> for
+the implementation details).
+
+<p><b><a name="oplusgraphics"></a>Graphics commands</b>
+
+<a name="draw_line"></a>
+<p><dt><b>op.draw_line(<i>x1, y1, x2, y2</i>)</b></dt>
+<dd>
+Draw a line from x1,y1 to x2,y2.
+</dd>
+<dd> Example: <b>op.draw_line(0, 0, 10, 10)</b></dd>
+</p>
+
+<a name="fill_ellipse"></a>
+<p><dt><b>op.fill_ellipse(<i>x, y, w, h, borderwd, fillrgba</i>)</b></dt>
+<dd>
+Draw an ellipse (or circle) inside the given rectangle.
+If borderwd is greater than zero then an antialiased ellipse of the given thickness
+is drawn using the current color.
+If fillrgba is not an empty string then the ellipse is filled with the given color.
+</dd>
+<dd> Example: <b>op.fill_ellipse(200, 450, 140, 99, 2, "rgba 255 255 0 200")</b></dd>
+</p>
+
+<a name="fill_rect"></a>
+<p><dt><b>op.fill_rect(<i>x, y, wd, ht</i>)</b></dt>
+<dd>
+Draw a filled rectangle with its top left corner at x,y and of the given width and height.
+</dd>
+<dd> Example: <b>op.fill_rect(0, 0, 40, 30)</b></dd>
+</p>
+
+<a name="round_rect"></a>
+<p><dt><b>op.round_rect(<i>x, y, w, h, radius, borderwd, fillrgba</i>)</b></dt>
+<dd>
+Draw a rounded rectangle where the given radius determines the curvature of each corner.
+If borderwd is greater than zero then an antialiased border of the given thickness
+is drawn using the current color.
+If fillrgba is not an empty string then the rectangle is filled with the given color.
+</dd>
+<dd> Example: <b>op.round_rect(200, 300, 60, 30, 15, 0, "rgba 255 0 0 128")</b></dd>
+</p>
+
+<p><b><a name="oplustext"></a>Text commands</b>
+
+<a name="minbox"></a>
+<p><dt><b>op.minbox(<i>clipname, wd, ht</i>)</b></dt>
+<dd>
+Find the minimal bounding box of non-transparent pixels in the given clip.
+This can be used to determine the real dimensions of some text.
+If all pixels in the clip are transparent then the returned values are all zero.
+</dd>
+<dd> Example: <b>local minx, miny, minwd, minht = op.minbox("textclip", 80, 10)</b></dd>
+</p>
+
+<a name="maketext"></a>
+<p><dt><b>op.maketext(<i>text, clipname, color, shadowx, shadowy, shadowcolor</i>)</b></dt>
+<dd>
+A simpler and more powerful way of creating text that can then be drawn with <a href="#pastetext">pastetext</a>.
+Only the first argument, <i>text</i>, is required.
+</dd>
+<dd> Example:</b></dd>
+<dd> <i>-- draw the string "Hello World" at 0, 0 on the current render target</i>
+<dd> <b>op.maketext("Hello World")</b></dd>
+<dd> <b>op.pastetext(0, 0)</b></dd>
+</p>
+<p>
+<dd>
+Usually the text clip is created using the current <a href="#rgba">rgba</a> values. This can be
+overridden by specifying the <i>color</i> argument.
+The text may also be given a shadow at a specific x, y pixel offset defined with the <i>shadowx</i>
+and <i>shadowy</i> arguments. The shadow will be drawn in opaque black unless a different color is
+specified with the <i>shadowcol</i> argument.
+</dd>
+<dd> Example:</b></dd>
+<dd> <i>-- create a clip named "hello" with the text "Hello World" in blue with a yellow shadow offset by -1, -2 pixels.</i>
+<dd> <b>local w, h = op.maketext("Hello World", "hello", op.blue, -1, -2, op.yellow)</b></dd>
+</p>
+<p>
+<dd>
+The function returns the width and height of the created clip (including any shadow).
+</p>
+
+<a name="pastetext"></a>
+<p><dt><b>op.pastetext(<i>x, y, transform, clipname</i>)</b></dt>
+<dd>
+Paste text onto the current render target. Only the first two arguments <i>x, y</i> are required. Returns the clip name.
+</dd>
+<dd> Example:</b></dd>
+<dd> <i>-- paste a text clip at 0, 0 on the current render target</i>
+<dd> <b>local textclip = op.pastetext(0, 0)</b></dd>
+</p>
+<p>
+<dd>
+The <i>transform</i> argument can be used to specify an <a href="#affine">affine transformation</a>. The <i>clipname</i> may
+be used to specify a non-default clipname.
+<dd> Example:</dd>
+<dd> <i>-- paste the clip named "hello" at 0, 0 and rotated clockwise on the current render target</i>
+<dd> <b>op.pastetext(0, 0, op.rcw, "hello")</b></dd>
+</dd>
+</p>
+<p><b><a name="oplusui"></a>User interface commands</b>
+
+<p><dt><b>op.button(<i>label, onclick</i>)</b></dt>
+<dd>
+Create and return a table representing a button.
+The button width depends on the given label text.
+If the <a href="#process">op.process</a> function detects a click in this
+button then the given onclick function will be called.
+</dd>
+<dd> Example: <b>cancel_button = op.button("Cancel", g.exit)</b></dd>
+</p>
+<p>
+<dd>
+The button will only appear after its show function is called.
+</dd>
+<dd> Example: <b>cancel_button.show(10, 10)</b></dd>
+</p>
+
+<p><dt><b>op.checkbox(<i>label, labelrgba, onclick</i>)</b></dt>
+<dd>
+Create and return a table representing a check box.
+The label text will be drawn using the given color to the right of a tickable button.
+If the <a href="#process">op.process</a> function detects a click in this
+check box (including the label) then the given onclick function will be called.
+</dd>
+<dd> Example: <b>line_box = op.checkbox("Show lines", op.black, toggle_lines)</b></dd>
+</p>
+<p>
+<dd>
+The check box will only appear after its show function is called.
+</dd>
+<dd> Example: <b>line_box.show(10, 40, true)</b></dd>
+</p>
+
+<p><dt><b>op.radiobutton(<i>label, labelrgba, onclick</i>)</b></dt>
+<dd>
+Create and return a table representing a radio button.
+The label text will be drawn using the given color to the right of a radio button.
+If the <a href="#process">op.process</a> function detects a click in this
+radio button (including the label) then the given onclick function will be called.
+</dd>
+<dd> Example:</dd>
+<dd> <b>draw_option = op.radiobutton("Draw", op.black, set_draw_mode)</b></dd>
+<dd> <b>select_option = op.radiobutton("Select", op.black, set_select_mode)</b></dd>
+<dd> <b>move_option = op.radiobutton("Move", op.black, set_move_mode)</b></dd>
+</p>
+<p>
+<dd>
+The radio button will only appear after its show function is called.
+</dd>
+<dd> Example:</dd>
+<dd> <b>draw_option.show(10, 40, mode == "draw")</b></dd>
+<dd> <b>select_option.show(10, 40, mode == "select")</b></dd>
+<dd> <b>move_option.show(10, 40, mode == "move")</b></dd>
+</p>
+
+<p><dt><b>op.slider(<i>label, labelrgba, barwidth, minval, maxval, onclick</i>)</b></dt>
+<dd>
+Create and return a table representing a slider.
+The label text will be drawn using the given color to the left of the slider's
+horizontal bar.  The bar width must be greater than 0.
+The minimum and maximum values of the slider can be any integer values,
+as long as minval is less than maxval.
+If the <a href="#process">op.process</a> function detects a click in this slider,
+and the slider value has changed, then the given onclick function will be called.
+</dd>
+<dd> Example: <b>red_slider = op.slider("Red:", op.black, 64, 0, 255, new_red)</b></dd>
+</p>
+<p>
+<dd>
+The slider will only appear after its show function is called.
+</dd>
+<dd> Example: <b>red_slider.show(10, 70, 255)</b></dd>
+</p>
+
+<p><dt><b>op.menubar()</b></dt>
+<dd>
+Create and return a table representing a menu bar.
+You can then use its addmenu function to add menus to the menu bar,
+then the additem function to append items to these menus.
+If the <a href="#process">op.process</a> function detects a click in this menu bar
+then it will track the mouse and call the specified callback function if a menu item
+is selected.
+</dd>
+</dd>
+<dd> Example:</dd>
+<dd> <b>mbar = op.menubar()</b></dd>
+<dd> <i>-- add some menus</i></dd>
+<dd> <b>mbar.addmenu("File")</b></dd>
+<dd> <b>mbar.addmenu("Edit")</b></dd>
+<dd> <i>-- add items to File menu</i></dd>
+<dd> <b>mbar.additem(1, "New Pattern", NewPattern)</b></dd>
+<dd> <b>mbar.additem(1, "Open Pattern...", OpenPattern)</b></dd>
+<dd> <b>mbar.additem(1, "Save Pattern...", SavePattern)</b></dd>
+<dd> <b>mbar.additem(1, "---", nil) <i>-- separator</i></dd>
+<dd> <b>mbar.additem(1, "Exit", g.exit)</b></dd>
+<dd> <i>-- add items to Edit menu</i></dd>
+<dd> <b>mbar.additem(2, "Undo", Undo)</b></dd>
+<dd> <b>mbar.additem(2, "Redo", Redo)</b></dd>
+</p>
+<p>
+<dd>
+The menu bar will appear when its show function is called.
+Menu items can be enabled or disabled using the enableitem function,
+and ticked or unticked using the tickitem function.
+</dd>
+<dd> Example:</dd>
+<dd> <b>mbar.enableitem(2, 1, CanUndo())</b></dd>
+<dd> <b>mbar.enableitem(2, 2, CanRedo())</b></dd>
+<dd> <b>mbar.show(0, 0, 600, 30)</b></dd>
+</p>
+
+<a name="process"></a>
+<p><dt><b>op.process(<i>event</i>)</b></dt>
+<dd>
+Process the given event (normally the string returned by a
+<a href="lua.html#getevent">getevent</a> command).
+If it detects a click in a previously created button, check box or slider then
+it will call the appropriate onclick function and return an empty string to
+indicate the event was handled, otherwise it returns a copy of the given string
+so the caller can process the event.
+</dd>
+<dd> Example: <b>local event = op.process( g.getevent() )</b></dd>
+</p>
+
+<p><dt><b>op.popupmenu()</b></dt>
+<dd>
+Create and return a table representing a pop-up menu.
+You can then use its additem function to append an item with a given label
+and a callback function that will be called if the user selects the item.
+</dd>
+<dd> Example:</dd>
+<dd> <b>editmenu = op.popupmenu()</b></dd>
+<dd> <b>editmenu.additem("Cut", CutSelection)</b></dd>
+<dd> <b>editmenu.additem("Copy", CopySelection)</b></dd>
+<dd> <b>editmenu.additem("Clear", ClearSelection)</b></dd>
+<dd> <b>editmenu.additem("---", nil)</b></dd>
+<dd> <b>editmenu.additem("Paste", PasteClipboard)</b></dd>
+</p>
+<p>
+<dd>
+The pop-up menu will appear when its show function is called
+(note that you need to pass in the overlay's width and height).
+</dd>
+<dd> Example:</dd>
+<dd> <b>editmenu.setbgcolor("rgba 0 128 0 255")</b> <i>-- dark green background</i></dd>
+<dd> <b>editmenu.show(mousex, mousey, ovwd, ovht)</b></dd>
+</p>
+
+<p><b><a name="oplusutil"></a>Utility commands</b>
+
+<p><dt><b>op.hexrule()</b></dt>
+<dd>
+Return true if the current rule uses a hexagonal neighborhood.
+</dd>
+<dd> Example: <b>if op.hexrule() then do_hex_stuff() end</b></dd>
+</p>
+
+<p>
+The <b>oplus</b> package also defines a number of synonyms for some
+frequently used overlay commands.
+
+<p>
+Opaque colors:
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>op.white</b></td><td width=5></td><td>     = "rgba 255 255 255 255"</td></tr>
+<tr><td><b>op.gray</b></td><td width=5></td><td>      = "rgba 128 128 128 255"</td></tr>
+<tr><td><b>op.black</b></td><td width=5></td><td>     = "rgba 0 0 0 255"</td></tr>
+<tr><td><b>op.red</b></td><td width=5></td><td>       = "rgba 255 0 0 255"</td></tr>
+<tr><td><b>op.green</b></td><td width=5></td><td>     = "rgba 0 255 0 255"</td></tr>
+<tr><td><b>op.blue</b></td><td width=5></td><td>      = "rgba 0 0 255 255"</td></tr>
+<tr><td><b>op.cyan</b></td><td width=5></td><td>      = "rgba 0 255 255 255"</td></tr>
+<tr><td><b>op.magenta</b></td><td width=5></td><td>   = "rgba 255 0 255 255"</td></tr>
+<tr><td><b>op.yellow</b></td><td width=5></td><td>    = "rgba 255 255 0 255"</td></tr>
+</table>
+</dd>
+
+<p><a name="synonyms"></a>
+Affine transformations:
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>op.identity</b></td><td width=5></td><td>     = "transform  1  0  0  1"</td></tr>
+<tr><td><b>op.flip</b></td><td width=5></td><td>         = "transform -1  0  0 -1"</td></tr>
+<tr><td><b>op.flip_x</b></td><td width=5></td><td>       = "transform -1  0  0  1"</td></tr>
+<tr><td><b>op.flip_y</b></td><td width=5></td><td>       = "transform  1  0  0 -1"</td></tr>
+<tr><td><b>op.swap_xy</b></td><td width=5></td><td>      = "transform  0  1  1  0"</td></tr>
+<tr><td><b>op.swap_xy_flip</b></td><td width=5></td><td> = "transform  0 -1 -1  0"</td></tr>
+<tr><td><b>op.rcw</b></td><td width=5></td><td>          = "transform  0 -1  1  0"</td></tr>
+<tr><td><b>op.rccw</b></td><td width=5></td><td>         = "transform  0  1 -1  0"</td></tr>
+<tr><td><b>op.racw</b></td><td width=5></td><td>         = <b>op.rccw</b></td></tr>
+<tr><td><b>op.r180</b></td><td width=5></td><td>         = <b>op.flip</b></td></tr>
+</table>
+</dd>
+
+<p><a name="themes"></a>
+Themes:
+<dd>
+<table cellspacing=0 cellpadding=0>
+<tr><td><b>op.theme0</b></td><td width = 5></td><td> = "theme 255 255 255 255 255 255 0 0 0 0 0 0 0 0 0"</td></tr>
+<tr><td><b>op.theme1</b></td><td width = 5></td><td> = "theme 0 255 255 255 255 255 0 0 255 0 0 47 0 0 0"</td></tr>
+<tr><td><b>op.theme2</b></td><td width = 5></td><td> = "theme 255 144 0 255 255 0 160 0 0 32 0 0 0 0 0"</td></tr>
+<tr><td><b>op.theme3</b></td><td width = 5></td><td> = "theme 0 255 255 255 255 255 0 128 0 0 24 0 0 0 0"</td></tr>
+<tr><td><b>op.theme4</b></td><td width = 5></td><td> = "theme 255 255 0 255 255 255 128 0 128 0 47 0 0 32 128"</td></tr>
+<tr><td><b>op.theme5</b></td><td width = 5></td><td> = "theme 176 176 176 255 255 255 104 104 104 16 16 16 0 0 0"</td></tr>
+<tr><td><b>op.theme6</b></td><td width = 5></td><td> = "theme 0 0 0 0 0 0 255 255 255 255 255 255 255 255 255"</td></tr>
+<tr><td><b>op.theme7</b></td><td width = 5></td><td> = "theme 0 0 255 0 0 0 0 255 255 240 240 240 255 255 255"</td></tr>
+<tr><td><b>op.theme8</b></td><td width = 5></td><td> = "theme 240 240 240 240 240 240 240 240 240 240 240 240 0 0 0"</td></tr>
+<tr><td><b>op.theme9</b></td><td width = 5></td><td> = "theme 240 240 240 240 240 240 160 0 0 160 0 0 0 0 0"</td></tr>
+</table>
+</dd>
+<p>
+<dd>You can also access the themes via an array: <b>local mytheme = op.themes[2]</b>.</dd>
+
+<p>
+For a good example of how to use the <b>oplus</b> package,
+see the <a href="edit:Scripts/Lua/3D.lua">3D.lua</a> script.
+
+</body>
+</html>

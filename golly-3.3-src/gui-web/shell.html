@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<!--
+    This file is used to create golly.html via the shell-file option in Makefile.
+    Originally based on Emscripten's src/shell.html.
+-->
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
+    <title>Golly</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            overflow: hidden;       /* prevents scroll bars */
+            background: #DDD;
+        }
+        div.statusbar { text-align: left; }
+        textarea.statusbar {
+            font-family: monospace; font-size: 12px; line-height: 16px;
+            resize: none; overflow: hidden; width: 100%;
+            background: #FFFFCE; border: 1px solid gray; margin-top: 10px; padding: 2px;
+        }
+        div.canvas_border { border: 0px none; }
+        /* the canvas must not have any border or padding, or mouse coords will be wrong */
+        canvas.golly {
+            position: absolute;
+            border: 0px none;
+        }
+        div.menubar { text-align: center; }
+        div.menu_container { display: inline-block; margin-top: 6px; margin-bottom: 5px; }
+        div.toolbar { text-align: center; }
+        div.myclipboard { text-align: center; }
+        textarea.myclipboard {
+            font-family: monospace; font-size: 11px; resize: none; width: 280px;
+            background: #FFF; border: 1px solid gray; margin-top: 10px; padding: 1px;
+        }
+        
+		div.patterndir {
+			width: 280px;
+			padding: 1px;
+			margin-left: 8px;       /* better alignment with textarea.myclipboard */
+			height: 300px;
+			border: 1px solid gray;
+			background: #FFF;
+			white-space: nowrap;
+  			overflow: auto;
+		}
+		button.imgbutton {
+			width: 36px;            /* for better agreement with Firefox and Safari/Chrome */
+			height: 32px;
+			margin: 0px;
+			vertical-align: middle;
+		}
+		img.imgbutton {
+			vertical-align: middle;
+		}
+		img.dir {
+			margin: 0px;
+			vertical-align: bottom;
+		}
+		span.dir {
+			cursor: pointer;
+		}
+		span.dir:hover {
+	    	background: #888;
+		    color: #FFF;
+		}
+		span.file {
+		    display: inline-block;
+			cursor: pointer;
+		}
+		span.file:hover {
+	    	background: #000;
+		    color: #FFF;
+		}
+        label { font: caption; }
+        .vspace { height: 10px; }
+        
+        #pastemenu {
+         	position: absolute;
+         	z-index: 1;
+            visibility: hidden;
+            border: 1px solid #000;
+        }
+        #pastemenu span {
+         	position: relative;
+            display: block;
+            padding: 5px 10px;
+            font: bold 12px Arial, Helvetica, sans-serif;
+        }
+	    #pastemenu span.normal {
+	    	background: #FEE;           /* light red to match paste image */
+		    color: #000;
+		}
+	    #pastemenu span.grayed {        /* grayed class is used to indicate an inactive item */
+	    	background: #FEE;
+		    color: #AAA;
+		}
+	    #pastemenu span.normal:hover {
+	    	background: #000;
+		    color: #FFF;
+            cursor: pointer;
+		}
+	    #pastemenu span.grayed:hover {
+	    	background: #FEE;
+		    color: #AAA;
+		    cursor: default;
+		}
+		
+        #selectionmenu {
+         	position: absolute;
+         	z-index: 1;
+            visibility: hidden;
+            background: #DFD;           /* light green to match selection */
+            border: 1px solid #000;
+        }
+        #selectionmenu span {
+         	position: relative;
+            display: block;
+            padding: 5px 10px;
+            font: bold 12px Arial, Helvetica, sans-serif;
+            cursor: pointer;
+        }
+	    #selectionmenu span:hover {
+	    	background: #000;
+		    color: #FFF;
+		}
+
+        #open_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 999;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #open_dialog {
+            width: 300px;
+            margin: 140px auto;
+            border: 1px solid #000;
+            padding: 0px;
+            background-color: #FFF;
+        }
+
+        #save_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 999;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #save_dialog {
+            width: 300px;
+            margin: 140px auto;
+            border: 1px solid #000;
+            padding: 0px;
+            background-color: #FFF;
+        }
+
+        #prefs_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 1000;          /* might appear above help dialog */
+            background-color: rgba(0,0,0,0.5);
+        }
+        #prefs_dialog {
+            width: 300px;
+            margin: 140px auto;
+            border: 1px solid #000;
+            padding: 0px;
+            background-color: #FFF;
+        }
+
+        #help_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 999;
+            background-color: rgba(0,0,0,0.5);
+        }
+        #help_dialog {
+            width: 670px;
+            margin: 130px auto;
+            border: 1px solid #000;
+            padding: 0px;
+        }
+        #help_header {
+            width: 670px;
+            height: 30px;
+            background-color: #DDD;
+            text-align: center;
+        }
+        #help_text {
+            width: 650px;
+            padding: 0px 10px;
+            height: 770px;
+            /* background-color: #FFF9D5;  nicer to set this in ShowHelp code */
+            text-align: left;
+            overflow: auto;
+        }
+
+        #info_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 1000;          /* might appear above help dialog */
+            background-color: rgba(0,0,0,0.5);
+        }
+        #info_dialog {
+            width: 670px;
+            margin: 130px auto;
+            border: 1px solid #000;
+            padding: 0px;
+        }
+        #info_header {
+            width: 670px;
+            height: 30px;
+            background-color: #DDD;
+            text-align: right;
+        }
+        #info_text {
+            width: 650px;
+            padding: 0px 10px;
+            height: 770px;
+            background-color: #FFF;
+            text-align: left;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: auto;
+        }
+
+        #progress_overlay {
+            visibility: hidden;
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            z-index: 1001;
+            background-color: rgba(0,0,0,0.1);
+        }
+        #progress_dialog {
+            width: 300px;
+            height: 100px;
+            margin: 140px auto;
+            border: 1px solid #000;
+            padding: 0px;
+            background-color: #FFF;
+        }
+
+        /* following is a heavily modified version of the code at http://www.lwis.net/free-css-drop-down-menu */
+        ul.dropdown,
+        ul.dropdown li,
+        ul.dropdown ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        ul.dropdown {
+            position: relative;
+            z-index: 500;
+            font: 14px Arial, Helvetica, sans-serif;
+            font-weight: bold;
+        }
+        ul.dropdown ul li {
+            float: none;
+            font: 14px Arial, Helvetica, sans-serif;
+            font-weight: normal;
+            text-align: left;
+        }
+        ul.dropdown li {
+            float: left;
+            padding: 8px 10px;
+            border-style: solid;
+            border-width: 1px 1px 1px 1px;
+            border-color: #69C3FF #5970B2 #5970B2 #69C3FF;
+            background-color: #49A3FF;
+            color: #FFF;
+        }
+        ul.dropdown li:hover {
+            position: relative;
+            z-index: 502;
+            cursor: default;
+            background-color: #5970B2;
+            color: #FFF;
+        }
+        ul.dropdown ul {
+            visibility: hidden;
+            position: absolute;
+            top: 100%;
+            left: -1px;
+            z-index: 501;
+            width: 160px;
+            margin-top: 1px;
+        }
+        ul.dropdown ul ul {
+            top: 1px;
+            left: 100%;
+        }
+        ul.dropdown *.menu {
+            padding-right: 40px;
+            background-image: url(images/menu_down.png);
+            background-position: 100% 50%;
+            background-repeat: no-repeat;
+        }
+        ul.dropright ul *.menu {
+            padding-right: 15px;
+            background-image: url(images/menu_right.png);
+            background-position: 100% 50%;
+            background-repeat: no-repeat;
+        }
+        ul.dropdown ul *.item_normal {
+            cursor: pointer;
+            background-image: url(images/item_blank.png);
+            background-position: 95% 50%;
+            background-repeat: no-repeat;
+        }
+        ul.dropdown ul *.item_disabled {    /* item_disabled class is set in UpdateMenuItems */
+            cursor: default;
+            background-image: url(images/item_blank.png);
+            background-position: 95% 50%;
+            background-repeat: no-repeat;
+            background-color: #49A3FF;
+            color: #70D0FF;
+        }
+    </style>
+</head>
+<body>
+    <script type="text/javascript">
+        function check_browser() {
+            var N=navigator.appName, ua=navigator.userAgent, tem;
+            var M=ua.match(/(opera|chrome|safari|firefox|msie)\/?\s*(\.?\d+(\.\d+)*)/i);
+            if (M && (tem= ua.match(/version\/([\.\d]+)/i))!= null) M[2]= tem[1];
+            M=M? [M[1], M[2]]: [N, navigator.appVersion, '-?'];
+            var browser_name = M[0];
+            var browser_version = parseInt(M[1],10); // '5.9.1' -> 5
+            if (browser_name == 'Safari' && browser_version < 6) {
+                // there is a nasty bug in Safari 5's JS interpreter that causes the population count
+                // to become 0 after stepping a few gens (but only in QuickLife algo)
+                alert('Sorry, but Golly requires Safari 6.0 or later,' +
+                      ' or another WebGL-capable browser like Chrome or Firefox.');
+                window.stop();
+            }
+            if (browser_name == 'MSIE' && browser_version < 11) {
+                alert('Sorry, but Golly requires Internet Explorer 11.0 or later,' +
+                      ' or another WebGL-capable browser like Chrome or Firefox.');
+                window.stop();
+            }
+        };
+        check_browser();
+
+        function resize_statusbar() {
+            // there's probably a way to get this 10px margin via CSS but I can't figure it out!!!
+            var trect = document.getElementById('toolbar').getBoundingClientRect();
+            var wd = window.innerWidth - trect.left - 14; // allow for 2px padding
+            if (wd < 0) wd = 0; // avoid console warning
+            document.getElementById('statusbar').style.width = wd + 'px';
+        };
+        
+        function resize_patterndir() {
+            var patterndir = document.getElementById('patterndir');
+            var ht = window.innerHeight - patterndir.getBoundingClientRect().top - 13; // allow for 1px padding and border
+            if (ht < 0) ht = 0; // avoid console warning
+            patterndir.style.height = ht + 'px';
+        };
+        
+        function resize_dialog(id) {
+            var textdiv = document.getElementById(id);
+            var ht = window.innerHeight - 30 - 2*130 - 2; // allow for header height and top/bottom margins and border
+            if (ht < 20) ht = 20;
+            textdiv.style.height = ht + 'px';
+        };
+        
+        window.addEventListener('resize', function() {
+            _ResizeCanvas();
+            resize_statusbar();
+            resize_patterndir();
+            resize_dialog('help_text');
+            resize_dialog('info_text');
+        });
+        
+        // this event handler is active only while the open dialog is visible
+        function on_file_change() {
+            var fileToLoad = document.getElementById('upload_file').files[0];
+            var fileReader = new FileReader();
+            fileReader.onload = function(event) {
+                var uInt8Array = new Uint8Array(fileReader.result);
+                FS.writeFile(fileToLoad.name, uInt8Array, {encoding:'binary'});
+                _CancelOpen();
+                filecreated = Module.cwrap('FileCreated', 'void', ['string']);
+                filecreated(fileToLoad.name);
+            };
+            fileReader.readAsArrayBuffer(fileToLoad);
+        };
+        
+        function save_pattern() {
+            var filename = document.getElementById('save_name').value;
+            if (filename.length == 0) {
+                alert("Please enter a file name.");
+                document.getElementById('save_name').focus();
+            } else {
+                savefile = Module.cwrap('SaveFile', 'void', ['string']);
+                savefile(filename);
+            }
+        };
+        
+        // this event handler is active only while the help dialog is visible
+        function on_help_click(event) {
+            var t = event.target || event.srcElement;
+            if (!t.href) {
+                t = t.parentNode;   // handles cases like <a ...><b>link</b></a>
+            }
+            if (t.href) {
+                var rawhref = t.getAttribute('href');
+                doclick = Module.cwrap('DoHelpClick', 'int', ['string']);
+                if (doclick(rawhref) == 0) {
+                    // not a special Golly link so open link in new tab/window
+                    window.open(t.href);
+                }
+                event.preventDefault();     // prevent browser doing anything more
+                return false;
+            }
+        };
+    </script>
+
+    <div id="pastemenu" oncontextmenu="event.preventDefault()">
+    <span class="normal" onclick="_PasteAction(0);">Abort Paste</span>
+    <span class="normal" onclick="_PasteAction(1);" id="pastehere">Paste Here</span>
+    <span class="normal" onclick="_PasteAction(2);" id="pastesel">Paste to Selection</span>
+    <span class="normal" onclick="_PasteAction(3);">Flip Top-Bottom</span>
+    <span class="normal" onclick="_PasteAction(4);">Flip Left-Right</span>
+    <span class="normal" onclick="_PasteAction(5);">Rotate Clockwise</span>
+    <span class="normal" onclick="_PasteAction(6);">Rotate Anticlockwise</span>
+    </div>
+
+    <div id="selectionmenu" oncontextmenu="event.preventDefault()">
+    <span onclick="_SelectionAction(0);">Remove Selection</span>
+    <span onclick="_SelectionAction(1);">Cut</span>
+    <span onclick="_SelectionAction(2);">Copy</span>
+    <span onclick="_SelectionAction(3);">Clear</span>
+    <span onclick="_SelectionAction(4);">Clear Outside</span>
+    <span onclick="_SelectionAction(5);">Shrink</span>
+    <span onclick="_SelectionAction(6);">Fit</span>
+    <span onclick="_SelectionAction(7);" id="randfill">Random Fill</span>
+    <span onclick="_SelectionAction(8);">Flip Top-Bottom</span>
+    <span onclick="_SelectionAction(9);">Flip Left-Right</span>
+    <span onclick="_SelectionAction(10);">Rotate Clockwise</span>
+    <span onclick="_SelectionAction(11);">Rotate Anticlockwise</span>
+    <span onclick="_SelectionAction(12);">Advance</span>
+    <span onclick="_SelectionAction(13);">Advance Outside</span>
+    </div>
+
+    <div id="open_overlay">
+        <div id="open_dialog">
+            <div style="margin-top:10px;">Open a file on your computer</div>
+            <div style="margin-top:10px;"> <input type="file" id="upload_file"> </div>
+            <div> <button type="button" style="margin-top:10px; margin-bottom:10px;" onclick="_CancelOpen()">Cancel</button> </div>
+        </div>
+    </div>
+
+    <div id="save_overlay">
+        <div id="save_dialog">
+            <div style="margin-top:10px;">Save current pattern</div>
+            <div style="margin-top:10px;">File name: &nbsp;<input id="save_name"></input>&nbsp;
+                <button type="button" onclick="save_pattern()">Save</button>
+            </div>
+            <div id="save_extensions" style="margin-top:10px; font-size:12px;"> list of valid extensions </div>
+            <div> <button type="button" style="margin-top:10px; margin-bottom:10px;" onclick="_CancelSave()">Cancel</button> </div>
+        </div>
+    </div>
+
+    <div id="prefs_overlay">
+        <div id="prefs_dialog">
+            <div class="vspace"></div>
+            <center><table cellspacing=10 cellpadding=0>
+            <tr><td align="right">Random fill percentage:</td><td align="left"><input id="random_fill" style="width:30px;"></input></td></tr>
+            <tr><td align="right">Maximum hash memory:</td><td align="left"><input id="max_hash" style="width:30px;"></input> MB</td></tr>
+            <tr><td align="right">Ask to save changes:</td><td align="left"><input type="checkbox" id="ask_to_save"></td></tr>
+            <tr><td align="right">Play beep sound:</td><td align="left"><input type="checkbox" id="toggle_beep"></td></tr>
+            </table></center>
+            <div style="height:40px;">
+                <button type="button" style="float:left; margin-left:10px; margin-top:10px;" onclick="_CancelPrefs()">Cancel</button>
+                <button type="button" style="float:right; margin-right:10px; margin-top:10px;" onclick="_StorePrefs()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="help_overlay">
+        <div id="help_dialog">
+            <div id="help_header">
+                <button type="button" style="float:left; margin-top:5px; margin-left:5px;" id="help_back" onclick="_HelpBack()"> &lt; </button>
+                <button type="button" style="float:left; margin-top:5px; margin-left:5px;" id="help_next" onclick="_HelpNext()"> &gt; </button>
+                <button type="button" style="float:left; margin-top:5px; margin-left:5px;" id="help_contents" onclick="_HelpContents()">Contents</button>
+                <button type="button" style="float:right; margin-top:5px; margin-right:5px;" onclick="_CloseHelp()">Close</button>
+            </div>
+            <div id="help_text"> contents </div>
+        </div>
+    </div>
+
+    <div id="info_overlay">
+        <div id="info_dialog">
+            <div id="info_header">
+                <button type="button" style="margin-top:5px; margin-right:5px;" onclick="_CloseInfo()">Close</button>
+            </div>
+            <div id="info_text"> contents </div>
+        </div>
+    </div>
+
+    <div id="progress_overlay">
+        <div id="progress_dialog">
+            <div id="progress_title" style="margin-top:10px;"> title </div>
+            <div id="progress_percent" style="margin-top:10px;"> percent </div>
+            <div> <button type="button" style="margin-top:10px;" onclick="_CancelProgress()">Cancel</button> </div>
+        </div>
+    </div>
+
+    <div style="width: 100%; overflow: hidden;">
+        <div style="width: 300px; float: left;">
+            <div class="myclipboard">
+                <textarea class="myclipboard" id="cliptext" wrap="off" rows="8"></textarea>
+            </div>
+            <div class="myclipboard">
+                <span style="font: caption;">Clipboard data used by </span>
+                <button type="button" id="paste" onclick="Module.buttonPress(this)">Paste</button>
+            </div>
+            <div id="patterns" style="font: caption; outline: #DDD none 0px" tabindex="1">
+                <div class="vspace"></div>
+                <div class="vspace"></div>
+                <center>Patterns</center>
+                <div class="patterndir" id="patterndir">
+                    <script type="text/javascript">
+                        // following code is based on a tutorial by Jos de Jong
+                        // (http://www.speqmath.com/tutorials/javascript/js_directory/index.html)
+                        var currlevel = 0;
+                        var currid = 0;
+                        
+                        function dirClose(dirID) {
+                            document.getElementById(dirID).style.display = 'none';
+                            document.getElementById("img" + dirID).src = "images/triangle_right.png";
+                        };
+                        
+                        function dirOpen(dirID) {
+                            document.getElementById(dirID).style.display = 'block';
+                            document.getElementById("img" + dirID).src = "images/triangle_down.png";
+                        };
+                        
+                        function dirClick(dirID) {
+                            // toggle directory from opened to closed or closed to opened
+                            if (document.getElementById(dirID).style.display == 'none') {
+                                dirOpen(dirID);
+                            } else {
+                                dirClose(dirID);
+                            }
+                        };
+                        
+                        function fileClick(fileID) {
+                            // the file's full path is stored in the given span's title attribute
+                            openfile = Module.cwrap('OpenClickedFile', 'void', ['string']);
+                            openfile(document.getElementById(fileID).title);
+                        };
+                        
+                        function dirStart(dirname) {
+                            // add a directory at the current level
+                            currid++;
+                            var dirID = "dir" + currid;
+                            var imgID = "img" + dirID;      // above code assumes this same prefix
+                
+                            for (i=0; i<currlevel; i++) {
+                                document.write("<span style='display:inline-block; width:20px; height:16px;'></span>");
+                            }
+                            
+                            document.write("<span class='dir' onclick='dirClick(\""+dirID+"\");'>");
+                            document.write("<img class='dir' id='"+imgID+"' src='images/triangle_down.png'>"+dirname+"</span><br>");
+                            document.write("<div id='"+dirID+"'>");
+                
+                            dirClose(dirID);    // close the directory
+                            currlevel++;        // the items inside the directory are a level higher
+                        };
+                        
+                        function addfile(fullpath) {
+                            // create the indentation for this item
+                            for (i=0; i<=currlevel; i++) {
+                                document.write("<span style='display:inline-block; width:20px; height:16px;'></span>");
+                            }
+                            currid++;
+                            var fileID = "file" + currid;
+                            document.write("<span class='file' id='"+fileID+"'");
+                            document.write(" title='"+fullpath+"'");
+                            document.write(" onclick='fileClick(\""+fileID+"\");'>");
+                            var filename = fullpath.substring(fullpath.lastIndexOf("/")+1);
+                            document.write(filename+"</span><br>");
+                        };
+                        
+                        function dirEnd() {
+                            document.write("</div>");
+                            currlevel--;
+                        };
+                        
+                        // is there a way to enumerate the /Patterns directory in JS???!!!
+                        // (until then, run patterns.py to generate the following)
+                        dirStart("Generations");
+                        addfile("/Patterns/Generations/Banner.mcl");
+                        addfile("/Patterns/Generations/Bloomerang.mcl");
+                        addfile("/Patterns/Generations/Burst.mcl");
+                        addfile("/Patterns/Generations/Caterpillars.mcl");
+                        addfile("/Patterns/Generations/Delta.rle");
+                        addfile("/Patterns/Generations/Ebb-and-Flow.mcl");
+                        addfile("/Patterns/Generations/Fireworks.mcl");
+                        addfile("/Patterns/Generations/Lava.mcl");
+                        addfile("/Patterns/Generations/Lines.mcl");
+                        addfile("/Patterns/Generations/MeteorGuns.mcl");
+                        addfile("/Patterns/Generations/Nova.mcl");
+                        addfile("/Patterns/Generations/Perfect-spiral.mcl");
+                        addfile("/Patterns/Generations/Sawfish.rle");
+                        addfile("/Patterns/Generations/SediMental.mcl");
+                        addfile("/Patterns/Generations/Steeplechase.mcl");
+                        addfile("/Patterns/Generations/Transers.mcl");
+                        addfile("/Patterns/Generations/What-a-mess.mcl");
+                        dirEnd();
+                        dirStart("HashLife");
+                        addfile("/Patterns/HashLife/broken-lines.mc");
+                        addfile("/Patterns/HashLife/catacryst.mc");
+                        addfile("/Patterns/HashLife/gotts-dots.mc");
+                        addfile("/Patterns/HashLife/hashlife-oddity1.mc");
+                        addfile("/Patterns/HashLife/hashlife-oddity2.mc");
+                        addfile("/Patterns/HashLife/hexadecimal.mc.gz");
+                        addfile("/Patterns/HashLife/jagged.mc");
+                        addfile("/Patterns/HashLife/jagged2.mc");
+                        addfile("/Patterns/HashLife/linear-propagator-p237228340.mc.gz");
+                        addfile("/Patterns/HashLife/loafer-gun-p8388608-linear.mc.gz");
+                        addfile("/Patterns/HashLife/logarithmic-width.mc");
+                        addfile("/Patterns/HashLife/metacatacryst.mc");
+                        addfile("/Patterns/HashLife/metapixel-galaxy.mc.gz");
+                        addfile("/Patterns/HashLife/metapixel-p216-gun.mc.gz");
+                        addfile("/Patterns/HashLife/metapixel-parity64.mc.gz");
+                        addfile("/Patterns/HashLife/mosquito5.mc");
+                        addfile("/Patterns/HashLife/nick-gotts-1.mc");
+                        addfile("/Patterns/HashLife/nick-gotts-2.mc");
+                        addfile("/Patterns/HashLife/puzzle.mc");
+                        addfile("/Patterns/HashLife/ruler.mc");
+                        addfile("/Patterns/HashLife/totalperiodic.mc");
+                        addfile("/Patterns/HashLife/triple-Snark-wick-extruder.rle.gz");
+                        addfile("/Patterns/HashLife/unlimited-novelty.mc");
+                        addfile("/Patterns/HashLife/wedge-grow.mc");
+                        addfile("/Patterns/HashLife/wolfram22.mc");
+                        dirEnd();
+                        dirStart("Larger-than-Life");
+                        addfile("/Patterns/Larger-than-Life/Blinkers.mcl");
+                        addfile("/Patterns/Larger-than-Life/Bosco.mcl");
+                        addfile("/Patterns/Larger-than-Life/BugCollection.rle");
+                        addfile("/Patterns/Larger-than-Life/BugGun.rle");
+                        addfile("/Patterns/Larger-than-Life/BugReactions.rle");
+                        addfile("/Patterns/Larger-than-Life/Butterfly.rle");
+                        addfile("/Patterns/Larger-than-Life/Globe.mcl");
+                        addfile("/Patterns/Larger-than-Life/Gnarl.mcl");
+                        addfile("/Patterns/Larger-than-Life/GunCollection.rle");
+                        addfile("/Patterns/Larger-than-Life/Jitterbug.rle");
+                        addfile("/Patterns/Larger-than-Life/Majority.mcl");
+                        addfile("/Patterns/Larger-than-Life/ModernArt.mcl");
+                        addfile("/Patterns/Larger-than-Life/R100-alien-bug.rle");
+                        addfile("/Patterns/Larger-than-Life/R100-NN-bug.rle");
+                        addfile("/Patterns/Larger-than-Life/R500-alien-bug.rle");
+                        addfile("/Patterns/Larger-than-Life/SlowShip.rle");
+                        addfile("/Patterns/Larger-than-Life/SoldierBugs.rle");
+                        addfile("/Patterns/Larger-than-Life/Waffle.mcl");
+                        dirEnd();
+                        dirStart("Life");
+                        dirStart("Bounded-Grids");
+                        addfile("/Patterns/Life/Bounded-Grids/agar-p3.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/cross-surface.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/herringbone-agar-p14.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/Klein-bottle.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/lightspeed-bubble.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/pulsars-in-tube.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/sphere.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/torus-with-shift.rle");
+                        addfile("/Patterns/Life/Bounded-Grids/torus.rle");
+                        dirEnd();
+                        dirStart("Breeders");
+                        addfile("/Patterns/Life/Breeders/breeder.lif");
+                        addfile("/Patterns/Life/Breeders/c4-diag-switch-engines.rle");
+                        addfile("/Patterns/Life/Breeders/LWSS-breeder.rle");
+                        addfile("/Patterns/Life/Breeders/p100-H-channel-breeder.rle");
+                        addfile("/Patterns/Life/Breeders/p90-rake-factory.rle");
+                        addfile("/Patterns/Life/Breeders/pi-blink-breeder1.rle");
+                        addfile("/Patterns/Life/Breeders/pi-blink-breeder2.rle");
+                        addfile("/Patterns/Life/Breeders/rake-breeder.rle");
+                        addfile("/Patterns/Life/Breeders/slide-breeder.rle");
+                        addfile("/Patterns/Life/Breeders/spacefiller.rle");
+                        addfile("/Patterns/Life/Breeders/switch-engine-breeder-MR.rle");
+                        addfile("/Patterns/Life/Breeders/switch-engine-breeder.rle");
+                        addfile("/Patterns/Life/Breeders/switch-engine-ping-pong.rle");
+                        dirEnd();
+                        dirStart("Guns");
+                        addfile("/Patterns/Life/Guns/2c5-spaceship-gun-p416.rle");
+                        addfile("/Patterns/Life/Guns/2c5-spaceship-gun-p690.rle");
+                        addfile("/Patterns/Life/Guns/7-in-a-row-Cordership-V-gun.rle");
+                        addfile("/Patterns/Life/Guns/Cordership-gun-p784.rle");
+                        addfile("/Patterns/Life/Guns/golly-ticker.rle");
+                        addfile("/Patterns/Life/Guns/gun-p165mwss.rle");
+                        addfile("/Patterns/Life/Guns/loafer-gun-p210.rle");
+                        addfile("/Patterns/Life/Guns/p59-gun-with-Snark-reflectors.rle");
+                        addfile("/Patterns/Life/Guns/p690-PT-Cordership-gun.rle");
+                        addfile("/Patterns/Life/Guns/pseudo-p34-gun.rle");
+                        addfile("/Patterns/Life/Guns/vacuum-cleaner.rle");
+                        dirEnd();
+                        dirStart("Methuselahs");
+                        addfile("/Patterns/Life/Methuselahs/acorn.lif");
+                        addfile("/Patterns/Life/Methuselahs/ark1.rle");
+                        addfile("/Patterns/Life/Methuselahs/ark2.rle");
+                        addfile("/Patterns/Life/Methuselahs/blom.rle");
+                        addfile("/Patterns/Life/Methuselahs/iwona.rle");
+                        addfile("/Patterns/Life/Methuselahs/justyna.rle");
+                        addfile("/Patterns/Life/Methuselahs/lidka-predecessor.rle");
+                        addfile("/Patterns/Life/Methuselahs/natural-LWSS.rle");
+                        addfile("/Patterns/Life/Methuselahs/rabbits-relation-17423.rle");
+                        addfile("/Patterns/Life/Methuselahs/rabbits-relation-17465.rle");
+                        addfile("/Patterns/Life/Methuselahs/rabbits.lif");
+                        addfile("/Patterns/Life/Methuselahs/temp-pulsars-big-s.rle");
+                        dirEnd();
+                        dirStart("Miscellaneous");
+                        addfile("/Patterns/Life/Miscellaneous/blockstacker.rle");
+                        addfile("/Patterns/Life/Miscellaneous/Calcyman-primer.zip");
+                        addfile("/Patterns/Life/Miscellaneous/Cambrian-Explosion.rle");
+                        addfile("/Patterns/Life/Miscellaneous/diagfuse1.rle");
+                        addfile("/Patterns/Life/Miscellaneous/die658.rle");
+                        addfile("/Patterns/Life/Miscellaneous/elbow-ladders.rle");
+                        addfile("/Patterns/Life/Miscellaneous/fermat-primes.rle");
+                        addfile("/Patterns/Life/Miscellaneous/four-primers.rle.gz");
+                        addfile("/Patterns/Life/Miscellaneous/infinity-hotel0.rle");
+                        addfile("/Patterns/Life/Miscellaneous/infinity-hotel1.rle");
+                        addfile("/Patterns/Life/Miscellaneous/infinity-hotel2.rle");
+                        addfile("/Patterns/Life/Miscellaneous/infinity-hotel3.rle");
+                        addfile("/Patterns/Life/Miscellaneous/lightspeed.rle");
+                        addfile("/Patterns/Life/Miscellaneous/loggrow-corder.rle");
+                        addfile("/Patterns/Life/Miscellaneous/sawtooth6b.rle");
+                        addfile("/Patterns/Life/Miscellaneous/tubstretch-c124b.rle");
+                        addfile("/Patterns/Life/Miscellaneous/twinprimes.rle");
+                        addfile("/Patterns/Life/Miscellaneous/wicks-DRH-2002.rle");
+                        dirEnd();
+                        dirStart("Oscillators");
+                        addfile("/Patterns/Life/Oscillators/billiard-table.rle");
+                        addfile("/Patterns/Life/Oscillators/DRH-oscillators.rle");
+                        addfile("/Patterns/Life/Oscillators/extensible-low-period.rle");
+                        addfile("/Patterns/Life/Oscillators/glider-stream-crystal.rle");
+                        addfile("/Patterns/Life/Oscillators/honey-farm-hasslers.rle");
+                        addfile("/Patterns/Life/Oscillators/low-period.rle");
+                        addfile("/Patterns/Life/Oscillators/p103079214841.rle");
+                        addfile("/Patterns/Life/Oscillators/p138.rle");
+                        addfile("/Patterns/Life/Oscillators/phase-shift.rle");
+                        addfile("/Patterns/Life/Oscillators/queen-bee-turn.rle");
+                        addfile("/Patterns/Life/Oscillators/traffic-light-hasslers.rle");
+                        addfile("/Patterns/Life/Oscillators/unique-high-period.rle");
+                        dirEnd();
+                        dirStart("Puffers");
+                        addfile("/Patterns/Life/Puffers/c4-diagonal-puffer.rle");
+                        addfile("/Patterns/Life/Puffers/line-puffer-superstable.rle");
+                        addfile("/Patterns/Life/Puffers/line-puffer-unstable.rle");
+                        addfile("/Patterns/Life/Puffers/p100-H-track-puffer.rle");
+                        addfile("/Patterns/Life/Puffers/pi-fuse-puffer.rle");
+                        addfile("/Patterns/Life/Puffers/puffer-2c5.rle");
+                        addfile("/Patterns/Life/Puffers/puffer-train.rle");
+                        addfile("/Patterns/Life/Puffers/zigzag-wickstretcher.rle");
+                        dirEnd();
+                        dirStart("Rakes");
+                        addfile("/Patterns/Life/Rakes/2c5-engineless-rake-p185.rle");
+                        addfile("/Patterns/Life/Rakes/2c5-spaceship-rake-p240.rle");
+                        addfile("/Patterns/Life/Rakes/basic-rakes.rle");
+                        addfile("/Patterns/Life/Rakes/c2-Cordership-rake.rle");
+                        addfile("/Patterns/Life/Rakes/c3-forward-rake-p333.rle");
+                        addfile("/Patterns/Life/Rakes/c4-sideways-rake.rle");
+                        addfile("/Patterns/Life/Rakes/c5-adjustable-rake.rle");
+                        addfile("/Patterns/Life/Rakes/forward-LWSS-rake-p90.rle");
+                        addfile("/Patterns/Life/Rakes/p270-frothing-puffer-rake.rle");
+                        addfile("/Patterns/Life/Rakes/spider-rake.rle");
+                        addfile("/Patterns/Life/Rakes/weekender-distaff.rle.gz");
+                        dirEnd();
+                        dirStart("Signal-Circuitry");
+                        addfile("/Patterns/Life/Signal-Circuitry/advancer.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/chase-the-glider.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/constructor-memory-loop.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/constructor-memory-tape.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/h-to-h-collection-26Aug2017.zip");
+                        addfile("/Patterns/Life/Signal-Circuitry/heisenblinker-30.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/heisenburp-30.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/heisenburp-46-natural.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/heisenburp-46.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/high-bandwidth-telegraph.rle.gz");
+                        addfile("/Patterns/Life/Signal-Circuitry/p30-racetrack.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/p46racetrack.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/reflectors.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/reflectors2.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/signal-turns-and-fizzles.rle.gz");
+                        addfile("/Patterns/Life/Signal-Circuitry/single-channel-spiral-growth.rle.gz");
+                        addfile("/Patterns/Life/Signal-Circuitry/stargate.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/traffic-lights-extruder.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/Turing-Machine-3-state.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/Unit-Life-Cell-512x512.rle");
+                        addfile("/Patterns/Life/Signal-Circuitry/Unit-Life-Deep-Cell.rle");
+                        dirEnd();
+                        dirStart("Spaceships");
+                        addfile("/Patterns/Life/Spaceships/2c5-orthogonal.rle");
+                        addfile("/Patterns/Life/Spaceships/adjustable-Corder-lineship.rle");
+                        addfile("/Patterns/Life/Spaceships/c3-orthogonal.rle");
+                        addfile("/Patterns/Life/Spaceships/c4-diagonal.rle");
+                        addfile("/Patterns/Life/Spaceships/c4-orthogonal.rle");
+                        addfile("/Patterns/Life/Spaceships/Corder-lineship.rle");
+                        addfile("/Patterns/Life/Spaceships/Cordership-boat-burner.rle");
+                        addfile("/Patterns/Life/Spaceships/Cordership-LWSS-freeze-tag.rle");
+                        addfile("/Patterns/Life/Spaceships/corderships.rle");
+                        addfile("/Patterns/Life/Spaceships/diagonal.rle");
+                        addfile("/Patterns/Life/Spaceships/orthogonal.rle");
+                        addfile("/Patterns/Life/Spaceships/short-thin.rle");
+                        addfile("/Patterns/Life/Spaceships/smallest-low-period.rle");
+                        addfile("/Patterns/Life/Spaceships/spaceship-types.rle");
+                        dirEnd();
+                        dirStart("Still-Lifes");
+                        addfile("/Patterns/Life/Still-Lifes/1998-eater-stamp-collection.rle");
+                        addfile("/Patterns/Life/Still-Lifes/eaters-misc.rle");
+                        addfile("/Patterns/Life/Still-Lifes/eaters.rle");
+                        addfile("/Patterns/Life/Still-Lifes/random.rle");
+                        addfile("/Patterns/Life/Still-Lifes/ss-eaters.rle");
+                        addfile("/Patterns/Life/Still-Lifes/stripey.rle");
+                        dirEnd();
+                        dirStart("Syntheses");
+                        addfile("/Patterns/Life/Syntheses/109-still-lifes.rle");
+                        addfile("/Patterns/Life/Syntheses/29-still-lifes.rle");
+                        addfile("/Patterns/Life/Syntheses/blockish-and-blockic-seeds.rle");
+                        addfile("/Patterns/Life/Syntheses/life-integer-constructions.rle");
+                        addfile("/Patterns/Life/Syntheses/make-harbor.rle");
+                        addfile("/Patterns/Life/Syntheses/make-osc-p3.rle");
+                        addfile("/Patterns/Life/Syntheses/make-osc-p4.rle");
+                        addfile("/Patterns/Life/Syntheses/make-osc-p5-plus.rle");
+                        addfile("/Patterns/Life/Syntheses/make-p11.rle");
+                        addfile("/Patterns/Life/Syntheses/make-p18.rle");
+                        addfile("/Patterns/Life/Syntheses/make-p33.rle");
+                        addfile("/Patterns/Life/Syntheses/oscillator-syntheses.rle");
+                        addfile("/Patterns/Life/Syntheses/slow-salvo-eater-recipes.rle");
+                        addfile("/Patterns/Life/Syntheses/slow-salvo-MWSS-oscillator.rle.gz");
+                        addfile("/Patterns/Life/Syntheses/syntheses-of-c2-spaceships.rle.gz");
+                        addfile("/Patterns/Life/Syntheses/two-glider-collisions.rle");
+                        dirEnd();
+                        dirEnd();
+                        dirStart("Life-Like");
+                        addfile("/Patterns/Life-Like/coral.rle");
+                        addfile("/Patterns/Life-Like/Day-and-Night-gun-and-antigun.rle");
+                        addfile("/Patterns/Life-Like/HighLife-replicator-spaceship.rle");
+                        addfile("/Patterns/Life-Like/ice-nine.rle");
+                        dirStart("Morley");
+                        addfile("/Patterns/Life-Like/Morley/breeder2.rle");
+                        addfile("/Patterns/Life-Like/Morley/enterprise-gun.rle");
+                        addfile("/Patterns/Life-Like/Morley/growing-ship.rle");
+                        dirEnd();
+                        addfile("/Patterns/Life-Like/p168-knightship.rle");
+                        addfile("/Patterns/Life-Like/persian-rugs.lif");
+                        addfile("/Patterns/Life-Like/replicator.rle");
+                        addfile("/Patterns/Life-Like/spiral-growth.rle");
+                        addfile("/Patterns/Life-Like/white-whale.rle");
+                        dirEnd();
+                        dirStart("Loops");
+                        addfile("/Patterns/Loops/Byl-Loop.rle");
+                        addfile("/Patterns/Loops/Chou-Reggia-Loop-1.rle");
+                        addfile("/Patterns/Loops/Chou-Reggia-Loop-2.rle");
+                        addfile("/Patterns/Loops/Evoloop-finite.rle");
+                        addfile("/Patterns/Loops/Evoloop.rle");
+                        addfile("/Patterns/Loops/Langtons-Loops.rle");
+                        addfile("/Patterns/Loops/Perrier-Loop.rle");
+                        addfile("/Patterns/Loops/Perrier-Parenthesis-Checker.rle");
+                        addfile("/Patterns/Loops/SDSR-Loop.rle");
+                        addfile("/Patterns/Loops/Tempesti-Loop.rle");
+                        dirEnd();
+                        dirStart("Margolus");
+                        addfile("/Patterns/Margolus/BBM.rle");
+                        addfile("/Patterns/Margolus/CrittersCircle.rle");
+                        addfile("/Patterns/Margolus/CrittersOscillators.rle");
+                        addfile("/Patterns/Margolus/DLA.rle");
+                        addfile("/Patterns/Margolus/HPP.rle");
+                        addfile("/Patterns/Margolus/HPP_large.rle");
+                        addfile("/Patterns/Margolus/Sand-Test.rle");
+                        addfile("/Patterns/Margolus/Sand.rle");
+                        addfile("/Patterns/Margolus/TMGas.rle");
+                        addfile("/Patterns/Margolus/TMGas_largeWithHole.rle");
+                        addfile("/Patterns/Margolus/TripATron.rle");
+                        addfile("/Patterns/Margolus/TripATron_BlockAligned.rle");
+                        dirEnd();
+                        dirStart("Non-Totalistic");
+                        addfile("/Patterns/Non-Totalistic/horiship-guns.rle");
+                        addfile("/Patterns/Non-Totalistic/infinite-binary-ruler-generator.rle");
+                        addfile("/Patterns/Non-Totalistic/intergalactic-cruise-ship-factory.rle");
+                        dirStart("JustFriends");
+                        addfile("/Patterns/Non-Totalistic/JustFriends/oscillators.rle");
+                        addfile("/Patterns/Non-Totalistic/JustFriends/p137loop.rle");
+                        addfile("/Patterns/Non-Totalistic/JustFriends/p384drifter.rle");
+                        addfile("/Patterns/Non-Totalistic/JustFriends/p8256c4dirtyrake.rle");
+                        addfile("/Patterns/Non-Totalistic/JustFriends/spaceships.rle");
+                        dirEnd();
+                        addfile("/Patterns/Non-Totalistic/limited-spacefiller.rle");
+                        addfile("/Patterns/Non-Totalistic/p42-knightship.rle");
+                        addfile("/Patterns/Non-Totalistic/pondpuffer-spaceship.rle");
+                        addfile("/Patterns/Non-Totalistic/reflectorless-rotating-oscillator-puffer.rle");
+                        addfile("/Patterns/Non-Totalistic/rr14gun.rle");
+                        addfile("/Patterns/Non-Totalistic/Sierpinski-builder.rle");
+                        addfile("/Patterns/Non-Totalistic/unit-fraction-orthogonal-spaceships.zip");
+                        dirEnd();
+                        dirStart("Other-Rules");
+                        addfile("/Patterns/Other-Rules/Ed-rep.rle");
+                        addfile("/Patterns/Other-Rules/factorize-84.zip");
+                        addfile("/Patterns/Other-Rules/golly-ants.rle");
+                        addfile("/Patterns/Other-Rules/HPP-demo-small.rle");
+                        addfile("/Patterns/Other-Rules/HPP-demo.rle");
+                        addfile("/Patterns/Other-Rules/Langtons-Ant.rle");
+                        addfile("/Patterns/Other-Rules/life-on-the-edge.rle");
+                        addfile("/Patterns/Other-Rules/life-on-the-slope.rle");
+                        dirEnd();
+                        dirStart("Patersons-Worms");
+                        addfile("/Patterns/Patersons-Worms/worm-1040512.rle");
+                        addfile("/Patterns/Patersons-Worms/worm-1042015.rle");
+                        addfile("/Patterns/Patersons-Worms/worm-1042020.rle");
+                        addfile("/Patterns/Patersons-Worms/worm-1252121.rle");
+                        addfile("/Patterns/Patersons-Worms/worm-1525115.rle");
+                        dirEnd();
+                        dirStart("Self-Rep");
+                        dirStart("Banks");
+                        addfile("/Patterns/Self-Rep/Banks/Banks-I-demo.rle");
+                        addfile("/Patterns/Self-Rep/Banks/Banks-II-demo.rle");
+                        addfile("/Patterns/Self-Rep/Banks/Banks-III-demo.rle");
+                        addfile("/Patterns/Self-Rep/Banks/Banks-IV-constructor.rle.gz");
+                        addfile("/Patterns/Self-Rep/Banks/Banks-IV-demo.rle");
+                        dirEnd();
+                        dirStart("Codd");
+                        addfile("/Patterns/Self-Rep/Codd/clocking-on-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/coders-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/construction-arm-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/crossover-unidir-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/decoder-4bit-demo.rle.gz");
+                        addfile("/Patterns/Self-Rep/Codd/echo-discriminator.rle");
+                        addfile("/Patterns/Self-Rep/Codd/echo-switch-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/extend-coder-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/gates-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/golly-constructor.rle.gz");
+                        addfile("/Patterns/Self-Rep/Codd/Goucher-replicator.mc.gz");
+                        addfile("/Patterns/Self-Rep/Codd/repeater-emitter-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/sensing-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/sheathing-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/sheathing-problems.rle");
+                        addfile("/Patterns/Self-Rep/Codd/signals-demo.rle");
+                        addfile("/Patterns/Self-Rep/Codd/tape-reader-demo.rle");
+                        dirEnd();
+                        dirStart("Devore");
+                        addfile("/Patterns/Self-Rep/Devore/crossover.rle");
+                        addfile("/Patterns/Self-Rep/Devore/Devore-body.rle");
+                        addfile("/Patterns/Self-Rep/Devore/Devore-rep.rle");
+                        addfile("/Patterns/Self-Rep/Devore/discriminator.rle");
+                        dirEnd();
+                        dirStart("JvN");
+                        addfile("/Patterns/Self-Rep/JvN/Boustrophedon-replicator.rle");
+                        addfile("/Patterns/Self-Rep/JvN/cell-coders-demo.rle");
+                        addfile("/Patterns/Self-Rep/JvN/codon4-auto-retract.rle");
+                        addfile("/Patterns/Self-Rep/JvN/codon5-auto-retract.rle");
+                        addfile("/Patterns/Self-Rep/JvN/construction-arm-demo.rle");
+                        addfile("/Patterns/Self-Rep/JvN/counter-demo.rle");
+                        addfile("/Patterns/Self-Rep/JvN/CY_Lee_computer.zip");
+                        addfile("/Patterns/Self-Rep/JvN/golly-constructor.rle");
+                        addfile("/Patterns/Self-Rep/JvN/Hutton-replicator.rle");
+                        addfile("/Patterns/Self-Rep/JvN/JvN-loop-replicator.rle.gz");
+                        addfile("/Patterns/Self-Rep/JvN/N-compressed-replicator.rle");
+                        addfile("/Patterns/Self-Rep/JvN/NP-mutation.rle.gz");
+                        addfile("/Patterns/Self-Rep/JvN/NP-replicator.rle.gz");
+                        addfile("/Patterns/Self-Rep/JvN/partial-constructor.mc.gz");
+                        addfile("/Patterns/Self-Rep/JvN/read-arm-demo.rle");
+                        addfile("/Patterns/Self-Rep/JvN/sphinx-midpoint.mc.gz");
+                        addfile("/Patterns/Self-Rep/JvN/sphinx-spark.mc.gz");
+                        addfile("/Patterns/Self-Rep/JvN/sphinx.mc.gz");
+                        dirEnd();
+                        dirEnd();
+                        dirStart("Turmites");
+                        addfile("/Patterns/Turmites/AlienCounter.rle");
+                        addfile("/Patterns/Turmites/ComputerArt.rle");
+                        addfile("/Patterns/Turmites/Extinction.rle");
+                        addfile("/Patterns/Turmites/FibonacciSpiral.rle");
+                        addfile("/Patterns/Turmites/Highway2074575.rle");
+                        addfile("/Patterns/Turmites/LangtonsAnt_LLRR.rle");
+                        addfile("/Patterns/Turmites/Perfectionist.rle");
+                        addfile("/Patterns/Turmites/TriangularAnt_period92.rle");
+                        addfile("/Patterns/Turmites/TriangularLangtonsAnt.rle");
+                        addfile("/Patterns/Turmites/WormTrails.rle");
+                        dirEnd();
+                        dirStart("WireWorld");
+                        addfile("/Patterns/WireWorld/circuit.mcl");
+                        addfile("/Patterns/WireWorld/clocks.mcl");
+                        addfile("/Patterns/WireWorld/flip-flop.mcl");
+                        addfile("/Patterns/WireWorld/gate-AND.mcl");
+                        addfile("/Patterns/WireWorld/gate-NOT.mcl");
+                        addfile("/Patterns/WireWorld/gate-OR.mcl");
+                        addfile("/Patterns/WireWorld/gate-XOR.mcl");
+                        addfile("/Patterns/WireWorld/Langtons-ant.zip");
+                        addfile("/Patterns/WireWorld/memory-cell.mcl");
+                        addfile("/Patterns/WireWorld/NickGardner.mcl");
+                        addfile("/Patterns/WireWorld/NylesHeise.mcl");
+                        addfile("/Patterns/WireWorld/primes.mc");
+                        addfile("/Patterns/WireWorld/unary-multiplier.mcl");
+                        dirEnd();
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div style="margin-left: 300px;">
+            <div class="statusbar">
+                <textarea class="statusbar" id="statusbar" wrap="off" rows="3"></textarea>
+            </div>
+            <div class="menubar">
+                <script type="text/javascript">
+                    var itemid = '';
+                    var viscount = 0;
+                    
+                    function itemClick(item) {
+                        if (item.className == 'item_disabled') return false;
+                        if (viscount > 1) {
+                            var grandparent = item.parentNode.parentNode.parentNode;
+                            grandparent.parentNode.style.backgroundColor = '#49A3FF';         // need for Safari/Chrome
+                            grandparent.style.visibility = 'hidden';
+                            item.parentNode.style.visibility = 'hidden';
+                        } else {
+                            item.parentNode.parentNode.style.backgroundColor = '#49A3FF';     // need for Safari/Chrome
+                            item.parentNode.style.visibility = 'hidden';
+                        }
+                        viscount = 0;
+                        _ClearStatus(); // clear any status bar message
+                        itemid = item.id;
+                        // need to delay calling DoMenuItem so Safari/Chrome can hide the menu(s)
+                        window.setTimeout(function(){
+                            doitem = Module.cwrap('DoMenuItem', 'void', ['string']);
+                            doitem(itemid);
+                        },10);
+                    };
+                    
+                    function showMenu(item, show) {
+                        ulmenu = item.getElementsByTagName("ul")[0];
+                        if (show) {
+                            ulmenu.parentNode.style.backgroundColor = '#5970B2';
+                            if (ulmenu.style.visibility != 'visible') {
+                                // menu is about to become visible so this is a good place to update its items
+                                doupdate = Module.cwrap('UpdateMenuItems', 'void', ['string']);
+                                doupdate(item.id);
+                                ulmenu.style.visibility = 'visible';
+                                viscount++;
+                            }
+                        } else {
+                            ulmenu.parentNode.style.backgroundColor = '#49A3FF';
+                            if (ulmenu.style.visibility != 'hidden') {
+                                ulmenu.style.visibility = 'hidden';
+                                viscount--;
+                            }
+                        }
+                    };
+                </script>
+                <div class="menu_container">
+                <ul class="dropdown dropright">
+                    <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="File_menu">File
+                        <ul>
+                            <li class="item_normal" onclick="itemClick(this)" id="file_new">New Pattern</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="file_open">Open Pattern...</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="file_openclip">Open Clipboard</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="file_save">Save Pattern...</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="file_prefs">Preferences...</li>
+                        </ul>
+                    </li>
+                    <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="Edit_menu">Edit
+                        <ul>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_undo">Undo</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_redo">Redo</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_disable">Disable Undo/Redo</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_cut">Cut</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_copy">Copy</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_clear">Clear</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_clearo">Clear Outside</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_paste">Paste</li>
+                            <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="PasteMode_menu">Paste Mode
+                                <ul>
+                                    <li class="item_normal" onclick="itemClick(this)" id="paste_mode_and">AND</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="paste_mode_copy">COPY</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="paste_mode_or">OR</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="paste_mode_xor">XOR</li>
+                                </ul>
+                            </li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_all">Select All</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="edit_remove">Remove Selection</li>
+                        </ul>
+                    </li>
+                    <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="Control_menu">Control
+                        <ul>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_startstop">Start Generating</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_next">Next</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_step">Step</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_step1">Set Step = 1</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_slower">Slower</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_faster">Faster</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_reset">Reset</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_autofit">Auto Fit</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_hash">Show Hash Info</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_timing">Show Timing</li>
+                            <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="Algo_menu">Set Algorithm
+                                <ul>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo0">QuickLife</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo1">HashLife</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo2">Generations</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo3">Larger than Life</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo4">JvN</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="algo5">RuleLoader</li>
+                                </ul>
+                            </li>
+                            <li class="item_normal" onclick="itemClick(this)" id="control_setrule">Set Rule...</li>
+                        </ul>
+                    </li>
+                    <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="View_menu">View
+                        <ul>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_fitp">Fit Pattern</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_fits">Fit Selection</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_middle">Middle</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_zoomin">Zoom In</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_zoomout">Zoom Out</li>
+                            <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="Scale_menu">Set Scale
+                                <ul>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale0">1:1</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale1">1:2</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale2">1:4</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale3">1:8</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale4">1:16</li>
+                                    <li class="item_normal" onclick="itemClick(this)" id="scale5">1:32</li>
+                                </ul>
+                            </li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_grid">Show Grid</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_icons">Show Icons</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="view_info">Pattern Info</li>
+                        </ul>
+                    </li>
+                    <li class="menu" onmouseover="showMenu(this,true)" onmouseout="showMenu(this,false)" id="Help_menu">Help
+                        <ul>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_index">Contents</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_intro">Introduction</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_tips">Hints and Tips</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_algos">Algorithms</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_lexicon">Life Lexicon</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_archives">Online Archives</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_keyboard">Keyboard Commands</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_refs">References</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_formats">File Formats</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_bounded">Bounded Grids</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_problems">Known Problems</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_changes">Changes</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_credits">Credits</li>
+                            <li class="item_normal" onclick="itemClick(this)" id="help_about">About Golly</li>
+                        </ul>
+                    </li>
+                </ul>
+                </div>
+            </div>
+            <div class="toolbar" id="toolbar">
+                <div class="golly" id="buttons">
+                    <button type="button" id="new" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Create a new, empty universe"><img class="imgbutton" src="images/new.png"></button>
+                    &nbsp;&nbsp;
+                    <button type="button" id="startStop" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Start/stop generating"><img class="imgbutton" id="imgstartStop" src="images/start.png"></button>
+                    <button type="button" id="next" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Advance by 1 generation"><img class="imgbutton" src="images/next.png"></button>
+                    <button type="button" id="step" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Advance by step size"><img class="imgbutton" src="images/step.png"></button>
+                    <button type="button" id="step1" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Set step size to 1"><img class="imgbutton" src="images/step1.png"></button>
+                    <button type="button" id="slower" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Slower (decrease step size)"><img class="imgbutton" src="images/slower.png"></button>
+                    <button type="button" id="faster" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Faster (increase step size)"><img class="imgbutton" src="images/faster.png"></button>
+                    <button type="button" id="reset" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Go back to starting generation"><img class="imgbutton" id="imgreset" src="images/reset.png"></button>
+                    &nbsp;&nbsp;
+                    <button type="button" id="undo" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Undo"><img class="imgbutton" id="imgundo" src="images/undo.png"></button>
+                    <button type="button" id="redo" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Redo"><img class="imgbutton" id="imgredo" src="images/redo.png"></button>
+                    &nbsp;&nbsp;
+                    <button type="button" id="fit" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Fit entire pattern within view"><img class="imgbutton" src="images/fit.png"></button>
+                    <button type="button" id="zoomIn" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Zoom in"><img class="imgbutton" src="images/zoomin.png"></button>
+                    <button type="button" id="zoomOut" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Zoom out"><img class="imgbutton" src="images/zoomout.png"></button>
+                    <button type="button" id="scale1to1" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Set scale to 1 cell = 1 pixel"><img class="imgbutton" src="images/scale1to1.png"></button>
+                    <button type="button" id="full" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Full screen"><img class="imgbutton" src="images/full.png"></button>
+                    &nbsp;&nbsp;
+                    <button type="button" id="info" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Show pattern information"><img class="imgbutton" id="imginfo" src="images/info.png"></button>
+                    <button type="button" id="help" onclick="Module.buttonPress(this)" class="imgbutton"
+                            title="Show help dialog"><img class="imgbutton" src="images/help.png"></button>
+                </div>
+                <div class="vspace"></div>
+                <div class="golly" id="settings">
+                    <label for="mode">Cursor:</label>
+                    <select id="mode" onchange="Module.selectionChanged(this)">
+                        <option>Draw</option>
+                        <option>Pick</option>
+                        <option>Select</option>
+                        <option>Move</option>
+                        <option>Zoom In</option>
+                        <option>Zoom Out</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    <label for="state">State:</label>
+                    <select id="state" onchange="Module.selectionChanged(this)">
+                        <option>0</option>
+                        <option>1</option>
+                    </select>
+                    &nbsp;&nbsp;
+                    <label for="toggle_icons">Icons:</label><input type="checkbox" id="toggle_icons" onclick="Module.checkboxPress(this)">
+                    &nbsp;&nbsp;
+                    <label for="toggle_autofit">Auto Fit:</label><input type="checkbox" id="toggle_autofit" onclick="Module.checkboxPress(this)">
+                </div>
+                <div class="vspace"></div>
+            </div>
+            <div class="canvas_border">
+                <canvas class="golly" id="canvas" onmouseover="_OverCanvas(true)" onmouseout="_OverCanvas(false)"
+                    oncontextmenu="event.preventDefault()">
+                </canvas>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var Module = {
+            preRun: [],
+            postRun: [],
+
+            buttonPress: function(button) {
+                _ClearStatus(); // clear any status bar message
+                button.blur();  // prevent button getting focus
+                if (button.id == 'new') _NewUniverse();
+                if (button.id == 'startStop') _StartStop();
+                if (button.id == 'next') _Next();
+                if (button.id == 'step') _Step();
+                if (button.id == 'slower') _GoSlower();
+                if (button.id == 'faster') _GoFaster();
+                if (button.id == 'step1') _StepBy1();
+                if (button.id == 'reset') _Reset();
+                if (button.id == 'undo') _Undo();
+                if (button.id == 'redo') _Redo();
+                if (button.id == 'fit') _Fit();
+                if (button.id == 'zoomOut') _ZoomOut();
+                if (button.id == 'zoomIn') _ZoomIn();
+                if (button.id == 'scale1to1') _Scale1to1();
+                if (button.id == 'full') _FullScreen();
+                if (button.id == 'info') _Info();
+                if (button.id == 'help') _Help();
+                if (button.id == 'paste') _Paste();
+            },
+
+            checkboxPress: function(box) {
+                _ClearStatus(); // clear any status bar message
+                box.blur();     // prevent checkbox getting focus
+                if (box.id == 'toggle_icons') _ToggleIcons();
+                if (box.id == 'toggle_autofit') _ToggleAutoFit();
+            },
+
+            selectionChanged: function(select) {
+                _ClearStatus(); // clear any status bar message
+                select.blur();  // prevent select getting focus
+                if (select.id == 'mode') _ModeChanged(select.selectedIndex);
+                if (select.id == 'state') _StateChanged(select.selectedIndex);
+            },
+            
+            print: (function() {
+                var element = document.getElementById('statusbar');
+                element.value = '';
+                return function(text) {
+                    text = Array.prototype.slice.call(arguments).join(' ');
+                    element.value += text + "\n";
+                };
+            })(),
+            
+            printErr: function(text) {
+                text = Array.prototype.slice.call(arguments).join(' ');
+                console.log(text);
+            },
+            
+            canvas: document.getElementById('canvas'),
+        }; // Module
+        
+        resize_statusbar();
+        resize_patterndir();
+        resize_dialog('help_text');
+        resize_dialog('info_text');
+        
+        Module.print('Loading Golly...');
+        
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>

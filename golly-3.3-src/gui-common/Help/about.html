@@ -1,0 +1,66 @@
+<html>
+<body bgcolor="#FFFFCE">
+
+<table cellspacing=3 cellpadding=4 width="100%" height="100%">
+<tr>
+<td>
+<center>
+<script type="text/javascript">
+    if (window.innerWidth <= 600) {
+        document.write("<font size=+0><b>");
+    } else {
+        document.write("<font size=+2><b>");
+    }
+    if ( navigator.userAgent.match(/iPad|iPhone|iPod/i) ) {
+        document.write("This is Golly version 1.2 for iOS");
+    } else if ( navigator.userAgent.match(/Android/i) ) {
+        document.write("This is Golly version 1.2 for Android");
+    } else {
+        document.write("This is Golly version ??? for ???");
+    }
+</script>
+</b><br>
+</font>
+<script type="text/javascript">
+    if (window.innerWidth <= 600) {
+        document.write("<font size=-2>");
+    } else {
+        document.write("<font size=+0>");
+    }
+</script>
+<br>&copy; 2005-2019 The Golly Gang:<br>
+Andrew Trevorrow, Tom Rokicki, Tim Hutton,<br>
+Dave Greene, Jason Summers, Robert Munafo,<br>
+Maks Verver, Brenton Bostick, Chris Rowett.<br>
+<script type="text/javascript">
+    if (window.innerWidth <= 600) {
+        document.write("<br><img src=\"about.gif\" width=\"80%\"><br>");
+    } else {
+        document.write("<br><img src=\"about.gif\"><br>");
+    }
+</script>
+<br>
+Golly is an open source, cross-platform application for<br>
+exploring the Game of Life and other cellular automata.<br>
+<br>
+<b><a href="http://golly.sourceforge.net/">http://golly.sourceforge.net/</a></b><br>
+</font>
+</center>
+<!--
+on iPad (gen 2):        devicePixelRatio = 1        innerWidth = 768    screen.availWidth = 768
+on Android emulator:    devicePixelRatio = 1.5      innerWidth = 320    screen.availWidth = 480
+on Nexus 7:             devicePixelRatio = 2        innerWidth = 600    screen.availWidth = 1200
+<script type="text/javascript">
+    document.write("innerWidth = " + window.innerWidth + "<br>");
+    document.write("innerHeight = " + window.innerHeight + "<br>");
+    document.write("screen.availWidth = " + window.screen.availWidth + "<br>");
+    document.write("screen.availHeight = " + window.screen.availHeight + "<br>");
+    document.write("devicePixelRatio = " + window.devicePixelRatio + "<br>");
+</script>
+-->
+</td>
+</tr>
+</table>
+
+</body>
+</html>

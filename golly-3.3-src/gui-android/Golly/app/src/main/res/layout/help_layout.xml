@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#EEEEEE"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/contents"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="40sp"
+            android:minHeight="0dp"
+            android:onClick="doContents"
+            android:text="Contents"
+        />
+        <Button
+            android:id="@+id/forwards"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_toLeftOf="@id/contents"
+            android:layout_width="50sp"
+            android:layout_height="40sp"
+            android:minHeight="0dp"
+            android:text="&gt;"
+            android:onClick="doForwards"
+        />
+        <Button
+            android:id="@+id/back"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_toLeftOf="@id/forwards"
+            android:layout_width="50sp"
+            android:layout_height="40sp"
+            android:minHeight="0dp"
+            android:text="&lt;"
+            android:onClick="doBack"
+        />
+    </RelativeLayout>
+        
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:orientation="horizontal" >
+        <WebView
+            android:id="@+id/webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+        />
+        <LinearLayout
+            android:id="@+id/progress_layout"
+            android:background="#EEEEEE"
+            android:padding="10sp"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" >
+            <TextView
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Downloading..."
+            />
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                android:paddingTop="5sp"
+                android:paddingBottom="10sp"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+            />
+            <Button
+                android:id="@+id/cancel"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="40sp"
+                android:minHeight="0dp"
+                android:text="Cancel"
+                android:onClick="doCancel"
+            />
+        </LinearLayout>
+    </RelativeLayout>
+
+</LinearLayout>

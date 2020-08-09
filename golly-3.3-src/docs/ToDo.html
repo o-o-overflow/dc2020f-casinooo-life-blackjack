@@ -1,0 +1,129 @@
+<html>
+<title>To-do notes for Golly</title>
+<body bgcolor="#FFFFCE">
+<center><table border=0><tr><td>
+<pre>
+Andrew's list:
+==============
+
+- Add a new check box to Prefs > Layer: "Automatically show/hide layer bar".
+  If ticked then layer bar is automatically shown whenever the number of
+  layers becomes > 1, and automatically hidden when the number drops to 1.
+  Only need to check in a few places (esp. after a script ends).
+
+- Auto stop script if it creates too many temp files (for undo).
+  This can happen if a long-running script doesn't call new/open
+  when it probably should.  See my email to Nathaniel with subject
+  "Re: Golly methuselah search script".
+
+- Stop generating if pattern becomes empty, constant or p2 (qlife only)
+  and display suitable message in status bar.  Or maybe just add
+  Gabriel's oscillation detection as an option (see oscar.py).
+
+- Allow non-rectangular (and disjoint) selections.
+
+- Add simple methuselah/spaceship/osc/still-life searches as in LifeLab???
+
+- Add case studies to BUILD file: how to add a new menu item, how to add
+  a new algorithm, etc.
+
+
+Tom's list:
+===========
+
+File I/O
+
+- Have hlifealgo .mc compatible with ghashbase .mc
+- Generalized RLE in MC?
+
+Algos
+
+- Unzoom color merging
+- Better status reports (% of hashtable full)
+
+Scripting
+
+- Tape construction script for replicator
+
+Samples
+
+- Small JVN examples
+
+Fun
+
+- htreebase
+- hgridbase (finite universe; torus, etc.)
+- allow (base) x (slow) algorithm "multiplication"
+- pluggability of externally-defined algos
+- perl/python slowcalc callbacks
+- cache of slowcalc
+- generational gc
+- 32-bit indexed hashlife on 64-bit platforms
+
+Other
+
+- Improve batchmode.
+
+- Fix qlifealgo::lowerRightPixel to prevent off-by-one error when
+  selecting large pattern like caterpillar.
+
+
+User suggestions:
+=================
+
+Nick Gotts:
+- Need a way to copy exact gen/pop counts to clipboard.
+  [No longer necessary now that a script can get this info.]
+
+Jason Summers:
+- For better viewing of patterns that move, have a way to automatically
+  move the view X cells horizontally and Y cells vertically every Z gens.
+  [Could be done quite easily via a script that prompts for X,Y,Z.]
+- Allow diagonal selection rectangles.
+
+Dave Greene:
+- Provide a way to click-and-drag a selection to move it around.
+- Make page and arrow scrolling amounts configurable (in Prefs > View).
+- Add a getview() script command that returns current viewport rect
+  and a setview(rect) command to change viewport size and location.
+- Make info window a floating window and keep it open (but update
+  its contents) when user loads another pattern.
+
+H. Koenig:
+- Multiple windows.  [No real need now that we have multiple layers.]
+
+Gabriel Nivasch:
+- Add a Default button to each Preferences pane (at bottom left?).
+
+Bill Gosper:
+- Modify info window so it can be used to edit and save comments.
+- For scales > 1:1 make the pixel color depend on lg(# of ones in it).
+
+Brice Due:
+- Provide MCell-like editing capabilities.
+- Provide a thumbnail option as an alternative to tiled layers;
+  ie. the current layer would be displayed in a large "focal" viewport.
+  All layers would be displayed as small, active thumbnails (at left
+  or top edge of focal viewport, depending on aspect ratio?).
+- Allow mc files to set step base and/or exponent via comment line like
+  #X stepbase=8 stepexp=3
+  [No need now that zip files can contain pattern + script?]
+
+Tim Hutton:
+- Add a script command to save comments in a pattern file.  Add optional
+  param to existing save() command?
+
+William R. Buckley:
+- Provide an option to increase spacing between buttons.
+
+Dean Hickerson:
+- Make Duplicate Layer faster by writing current pattern to temp file
+  and reading it into new layer.
+
+tod222:
+- Allow a command line argument (-minimize?) to start up with the
+  main window in minimized state.  Should be possible in OnInit.
+</pre>
+</td></tr></table></center>
+</body>
+</html>

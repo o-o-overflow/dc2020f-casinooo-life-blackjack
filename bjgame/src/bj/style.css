@@ -1,0 +1,353 @@
+div[id*="pcard"] .popover { left: -95px !important; }
+div[id*="dcard"] .popover { left: -105px !important; }
+body {
+	margin: 0;
+	background: #090a0a;
+}
+#wrapper {
+	background: #090a0a;
+	margin: 0 auto;
+	display: block;
+}
+.card_down{
+	display:none;
+}
+.center_header {
+	margin-left: auto;
+	margin-right: auto;
+	width: 50%;
+	text-align: center;
+}
+h3 {
+	margin: 5px 0;
+	text-align: center;
+}
+#interactions{
+	background: #090a0a;
+	margin: 0 auto;
+	width: 1600px;
+}
+#buttons{
+	position: relative;
+	width: 1200px;
+    float:left;
+}
+#dropdowns{
+	position: relative;
+	width: 125px;
+	float:left;
+}
+#game {
+	background: transparent url('cards/table.png') 0 0 no-repeat;
+	background-size: 1600px;
+	border-radius: 5px;
+	color: #333;
+	font: 14px/17px Helvetica, Arial, Verdana, sans-serif;
+	height: 950px;
+	margin: auto;
+	position: relative;
+	width: 1600px;
+}
+.btn {
+	background-color: #0563af;
+	line-height: 50px;
+	height: 50px;
+	text-align: center;
+	width: 250px;
+	cursor: pointer;
+	color: #FFF;
+	transition: all 0.5s;
+	font-family: Helvetica, Arial, Verdana, sans-serif;
+	font-size: 20px;
+	position: relative;
+	float:left;
+	margin-left:20px;
+	margin-top:2px;
+}
+
+.btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	background-color: rgba(128,128,128,0.05);
+	transition: all 0.3s;
+}
+
+.btn:hover::before {
+	/*transform: scale(0.5,0.5);*/
+	color: rgba(255, 255, 255, 0.6);
+	background-color: rgba(255, 255, 255, 0.2);
+}
+.btn::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	opacity: 0;
+	transition: all 0.3s;
+	border: 1px solid rgba(255,255,255,0.5);
+	transform: scale(1.2,1.2);
+}
+
+.btn:hover::after {
+	opacity: 1;
+	transform: scale(1,1);
+}
+#boxbg{
+	width: 100%;
+	height: 100%;
+	background-color: #0563af;
+}
+
+@keyframes float {
+	0% {
+		/*box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);*/
+		transform: translatey(0px);
+	}
+	50% {
+		/*box-shadow: 0 25px 15px 0px rgba(0,0,0,0.2);*/
+		transform: translatey(-10px);
+	}
+	100% {
+		/*box-shadow: 0 5px 15px 0px rgba(0,0,0,0.6);*/
+		transform: translatey(0px);
+	}
+}
+
+#plus1{
+	color: white;
+	text-align: right;
+	width: 250px;
+	position: absolute;
+	left: 0;
+	top: -40px;
+	display:none;
+	font-size: 25px;
+	background: transparent;
+	animation: float 3s ease-in-out infinite;
+}
+
+
+.box {
+	margin-top: 25px;
+	height: 50px;
+	/*margin-top: 3px;*/
+	line-height: 50px;
+	width: 250px;
+	transform: translate(-50%, -50%);
+}
+
+.box select {
+	background-color: #0563af;
+	color: white;
+	padding: 12px;
+	width: 250px;
+	border: none;
+	font-family: Helvetica, Arial, Verdana, sans-serif;
+	font-size: 20px;
+	box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+	-webkit-appearance: button;
+	appearance: button;
+	outline: none;
+	margin-top:2px;
+}
+.small {
+	font-size: 15px;
+}
+.box::after {
+	content: "\f13a";
+	font-family: FontAwesome;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 20%;
+	height: 100%;
+    text-align: center;
+	font-size: 28px;
+	line-height: 50px;
+	color: rgba(255, 255, 255, 0.5);
+	background-color: rgba(255, 255, 255, 0.1);
+	pointer-events: none;
+	margin-bottom: 3px;
+}
+
+.box:hover::before {
+	color: rgba(255, 255, 255, 0.6);
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.box select option {
+	padding: 30px;
+}
+/*.btn {*/
+/*	border: 2px solid #888888;*/
+/*	background-color: #444444;*/
+/*	color: white;*/
+/*	padding: 14px 28px;*/
+/*	font-size: 16px;*/
+/*	cursor: pointer;*/
+/*}*/
+div#dscore {
+	position: absolute;
+	bottom: 30px;
+}
+
+div#pscore {
+	position: absolute;
+	bottom: 15px;
+}
+
+div .phand, div#dhand {
+	font-weight: 700;
+	/*left: 50%;*/
+	position: absolute;
+	top: -100px;
+	white-space: nowrap;
+	width: 1600px;
+}
+
+div.phand { }
+
+div.dhand { }
+
+div[class*="card"] {
+	background: transparent;
+	border: 1px solid #CCCCCC;
+	border-radius: 5px;
+	box-shadow: 0 0 1px #000;
+	display: inline-block;
+	height: 105px;
+	margin: 0 5px;
+	position: absolute;
+	width: 75px;
+}
+
+.down {
+	/*background: #B20000 url('https://www.clowerweb.com/cors/blackjack/card.png') center center no-repeat !important;*/
+}
+
+span.pos-0 {
+	left: 0;
+	position: absolute;
+	top: 0;
+}
+
+
+/*span.pos-1 {*/
+/*	bottom: 0;*/
+/*	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);*/
+/*	position: absolute;*/
+/*	right: 0;*/
+/*	transform: rotate(180deg);*/
+/*  -moz-transform: rotate(180deg);*/
+/*  -webkit-transform: rotate(180deg);*/
+/*}*/
+
+span.rank {
+	font-size: 18px;
+}
+
+span.suit {
+	font-size: 22px;
+}
+
+.black {
+	color: #000;
+}
+
+.red {
+	color: #F00;
+}
+
+#result {
+	position: absolute;
+	bottom: 0;
+}
+
+#actions {
+	margin: 15px 0 0 0;
+    text-align: center;
+}
+
+.bj_pstate {
+	height: 40px;
+	display: inline-block;
+	position: absolute;
+	right: 0;
+	width: 140px;
+	font-size: 25px;
+	color: white;
+	text-align:center;
+}
+
+.info, .info:before {
+	border-radius: 5px;
+	height: 80px;
+	padding: 7px;
+	position: absolute;
+	right: 0;
+	width: 140px;
+}
+
+.info {
+	background: #333;
+	border: 2px solid #666666;
+}
+
+.info:before {
+	content: '';
+	opacity: 0.8;
+}
+
+.hand, .bank, .name {
+	color: #FFF;
+	font: 700 18px/20px Helvetica, Arial, Verdana, sans-serif;
+	margin: 6px 0;
+	position: relative;
+	display: block;
+	text-shadow: 1px 1px #000;
+	z-index: 1;
+
+}
+#alert {
+	margin: 0 auto;
+	opacity: 0.95;
+	position: relative;
+	text-align: center;
+	top: 34.5%;
+	width: 500px;
+	z-index: 0;
+}
+
+.wiggle_notify {
+	animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+	transform: translate3d(0, 0, 0);
+	backface-visibility: hidden;
+	perspective: 1000px;
+	border: 1px solid gold;
+}
+
+@keyframes shake {
+	10%, 90% {
+		transform: translate3d(-1px, 0, 0);
+	}
+
+	20%, 80% {
+		transform: translate3d(2px, 0, 0);
+	}
+
+	30%, 50%, 70% {
+		transform: translate3d(-4px, 0, 0);
+	}
+
+	40%, 60% {
+		transform: translate3d(4px, 0, 0);
+	}
+}

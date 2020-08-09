@@ -1,0 +1,113 @@
+<html>
+<title>Golly Help: Hints and Tips</title>
+<body bgcolor="#FFFFCE">
+
+<p>
+<font size=+1><b>Some useful hints and tips</b></font>
+
+<p>
+<ul>
+<li>
+Avoid the temptation to put your own patterns, scripts or rules inside Golly's
+supplied folders &mdash; it will make it difficult to upgrade to a future version.
+A much better idea is to create separate folders for your own files and put those folders
+alongside the supplied folders, so your Golly folder looks something like this:
+
+<p><table cellspacing=0 cellpadding=0>
+<tr><td>Golly</td><td width=20> </td> <td> </td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Golly.exe</td><td width=20> </td>
+    <td>(Golly.app on Mac, golly on Linux)</td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Help</td><td width=20> </td>
+    <td> </td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Patterns</td><td width=20> </td>
+    <td> </td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Rules</td><td width=20> </td>
+    <td> </td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;Scripts</td><td width=20> </td>
+    <td> </td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;My-downloads</td><td width=20> </td>
+    <td>(contains all your <a href="archives.html">downloaded</a> files; set in
+         <a href="prefs:file">Preferences > File</a>)</td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;My-patterns</td><td width=20> </td>
+    <td>(contains all your pattern files)</td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;My-rules</td><td width=20> </td>
+    <td>(contains all your .rule files; set in
+         <a href="prefs:control">Preferences > Control</a>)</td></tr>
+<tr><td>&nbsp;&nbsp;&nbsp;&nbsp;My-scripts</td><td width=20> </td>
+    <td>(contains all your .lua/.py files)</td></tr>
+</table>
+
+<p>
+If necessary, use File > Set File Folder and select the Golly folder.
+Now all your folders (and the supplied folders) are visible in the file panel,
+so with just a few clicks you can load any pattern, run any script, or switch
+to any .rule file.  You can also right-click (or control-click) on any of those
+files to open them in your <a href="prefs:file">preferred text editor</a>.
+
+<p>
+When upgrading to a new version of Golly, Mac users can simply drag all the
+distributed files and folders into their Golly folder and the old versions
+will be replaced.  On Windows and Linux you'll need to delete the old
+Help, Patterns, Rules and Scripts folders before dragging in the new
+folders to avoid ending up with merged versions.
+</li>
+<li>
+For better performance you should consider opening
+<a href="prefs:control">Preferences > Control</a> and increasing the
+maximum memory size used by the various hash-based algorithms.
+The maximum size depends on the amount of physical memory in your
+machine and the typical usage of that machine while Golly is running.
+A good place to start is 50% of your physical memory.  If your machine has less RAM
+or is used for internet browsing or other memory-hungry applications, you might
+lower this to 25% of physical memory; if your machine is a server and Golly
+will usually be running by itself, then 80% of physical memory may be
+appropriate.  More memory is better, but your machine should never go into
+swap or start using automatic memory compression.
+</li>
+<li>
+To view a pattern file you can drop it onto the Golly app or onto the
+Golly window if the app is already running.
+</li>
+<li>
+When Golly starts up it looks for scripts called
+<b>golly-start.lua</b> or <b>golly-start.py</b>
+in the same directory as the Golly application and then in a user-specific
+data directory (see the <a href="file.html#prefs">Preferences</a> item
+for the likely path on your system).
+If either script is found then it is automatically executed.
+</li>
+<li>
+Displaying the population count can cause a significant slow-down when
+generating large patterns, especially when using HashLife.
+You can disable the population count by unticking the
+<a href="control.html#showpop">Show Population</a> option in the Control menu,
+or you can toggle it by clicking in the "Population=..." text.
+Another alternative is to hit ";" to hide the status bar.
+You can toggle the status bar at any time, even in full screen mode.
+</li>
+<li>
+Editing operations are fastest in QuickLife.
+</li>
+<li>
+Pasting large, sparse patterns is much faster if using Or mode,
+or if the current pattern is empty,
+or if the paste rectangle is completely outside the current pattern edges.
+</li>
+<li>
+The hand cursor can be used to scroll the view by clicking and dragging.
+If you drag the cursor outside any view edge then scrolling will occur
+continuously; ie. you don't have to move the cursor.
+If the cursor is outside any corner (ie. outside two edges) then the
+scrolling direction will be diagonal.
+Actually, continuous scrolling also occurs if the hand cursor is dragged
+onto any view edge or corner.  This allows such scrolling to occur in
+full screen mode.
+</li>
+<li>
+While dragging the mouse to make (or modify) a selection, the escape key
+can be used to cancel the operation and restore the original selection.
+</li>
+</ul>
+
+</body>
+</html>

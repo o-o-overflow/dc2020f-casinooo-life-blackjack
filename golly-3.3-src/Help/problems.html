@@ -1,0 +1,65 @@
+<html>
+<title>Golly Help: Known Problems</title>
+<body bgcolor="#FFFFCE">
+
+<p>
+This section lists all known bugs and limitations.
+If you come across any problems not mentioned below then please
+report them to Andrew Trevorrow
+(<a href="mailto:andrew@trevorrow.com">andrew@trevorrow.com</a>)
+or Tom Rokicki
+(<a href="mailto:rokicki@gmail.com">rokicki@gmail.com</a>).
+
+<p>
+<font size=+1><b>Problems on all platforms</b></font>
+
+<p>
+<ul>
+<li>
+All editing operations are restricted to cells whose coordinates
+are within +/- 1 billion.
+</ul>
+
+<p>
+<font size=+1><b>Windows problems</b></font>
+
+<p>
+<ul>
+<li> None.
+</ul>
+
+<p>
+<font size=+1><b>Mac problems</b></font>
+
+<p>
+<ul>
+<li>
+Dragging the sash (the thin vertical bar separating the file panel
+and the viewport) can result in ugly flashing.
+</ul>
+
+<p>
+<font size=+1><b>Linux problems</b></font>
+
+<p>
+<ul>
+<li>
+Scroll bars are not updated correctly while resizing the window.
+<li>
+Golly has serious problems with Ubuntu's Unity interface.  For example,
+selecting a modal dialog like Control > Set Rule can freeze Golly.
+There are also problems with overlay scrollbars.
+Most (all?) of the problems can be solved by disabling both the global menu bar
+and the overlay scrollbars.  This can be done just for the golly binary by using
+the following alias:
+
+<table border=0><pre>
+alias golly="UBUNTU_MENUPROXY=0 LIBOVERLAY_SCROLLBAR=0 ./golly"</pre></table>
+
+<p>
+For more details, see this
+<a href="http://www.conwaylife.com/forums/viewtopic.php?f=7&t=3936&p=80011#p80011">forum post</a>.
+</ul>
+
+</body>
+</html>

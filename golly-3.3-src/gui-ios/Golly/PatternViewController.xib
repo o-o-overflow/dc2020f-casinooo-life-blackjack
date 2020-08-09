@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="9531" systemVersion="15A284" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PatternViewController">
+            <connections>
+                <outlet property="actionButton" destination="203" id="205"/>
+                <outlet property="bottomBar" destination="178" id="202"/>
+                <outlet property="cancelButton" destination="221" id="222"/>
+                <outlet property="editBar" destination="106" id="201"/>
+                <outlet property="infoButton" destination="209" id="213"/>
+                <outlet property="modeControl" destination="112" id="138"/>
+                <outlet property="pattView" destination="10" id="13"/>
+                <outlet property="progressBar" destination="220" id="223"/>
+                <outlet property="progressMessage" destination="219" id="224"/>
+                <outlet property="progressTitle" destination="218" id="225"/>
+                <outlet property="progressView" destination="217" id="226"/>
+                <outlet property="redoButton" destination="151" id="156"/>
+                <outlet property="resetButton" destination="158" id="160"/>
+                <outlet property="restoreButton" destination="189" id="192"/>
+                <outlet property="scaleControl" destination="43" id="52"/>
+                <outlet property="startStopButton" destination="16" id="55"/>
+                <outlet property="statView" destination="21" id="22"/>
+                <outlet property="stateLabel" destination="133" id="139"/>
+                <outlet property="stateView" destination="119" id="143"/>
+                <outlet property="stepControl" destination="40" id="51"/>
+                <outlet property="topBar" destination="5" id="200"/>
+                <outlet property="undoButton" destination="150" id="157"/>
+                <outlet property="view" destination="2" id="12"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="2">
+            <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="5">
+                    <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <items>
+                        <barButtonItem systemItem="rewind" id="158">
+                            <connections>
+                                <action selector="doReset:" destination="-1" id="159"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" id="17">
+                            <button key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="16">
+                                <rect key="frame" x="54" y="7" width="70" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="START">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="doStartStop:" destination="-1" eventType="touchUpInside" id="45"/>
+                                </connections>
+                            </button>
+                        </barButtonItem>
+                        <barButtonItem title="Next" id="161">
+                            <connections>
+                                <action selector="doNext:" destination="-1" id="163"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem title="Step" id="162">
+                            <connections>
+                                <action selector="doStep:" destination="-1" id="164"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" id="41">
+                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" momentary="YES" id="40">
+                                <rect key="frame" x="226" y="7" width="163" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Slower"/>
+                                    <segment title="Step=1"/>
+                                    <segment title="Faster"/>
+                                </segments>
+                                <connections>
+                                    <action selector="doChangeStep:" destination="-1" eventType="valueChanged" id="49"/>
+                                </connections>
+                            </segmentedControl>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="19"/>
+                        <barButtonItem title="Fit" id="165">
+                            <connections>
+                                <action selector="doFit:" destination="-1" id="166"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" id="42">
+                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" momentary="YES" id="43">
+                                <rect key="frame" x="494" y="7" width="192" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Smaller"/>
+                                    <segment title="Scale=1:1"/>
+                                    <segment title="Bigger"/>
+                                </segments>
+                                <connections>
+                                    <action selector="doChangeScale:" destination="-1" eventType="valueChanged" id="54"/>
+                                </connections>
+                            </segmentedControl>
+                        </barButtonItem>
+                        <barButtonItem title="Middle" id="167">
+                            <connections>
+                                <action selector="doMiddle:" destination="-1" id="168"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+                <view clearsContextBeforeDrawing="NO" contentMode="redraw" id="21" customClass="StatusView">
+                    <rect key="frame" x="0.0" y="44" width="768" height="63"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                </view>
+                <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="10" customClass="PatternView">
+                    <rect key="frame" x="0.0" y="152" width="768" height="780"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES"/>
+                    <subviews>
+                        <button opaque="NO" alpha="0.69999998807907104" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="189">
+                            <rect key="frame" x="677" y="686" width="81" height="30"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMinY="YES"/>
+                            <state key="normal" title="Restore">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="toggleFullScreen:" destination="-1" eventType="touchUpInside" id="191"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="106">
+                    <rect key="frame" x="0.0" y="107" width="768" height="44"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <items>
+                        <barButtonItem systemItem="undo" id="150">
+                            <connections>
+                                <action selector="doUndo:" destination="-1" id="152"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem systemItem="redo" id="151">
+                            <connections>
+                                <action selector="doRedo:" destination="-1" id="154"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="127"/>
+                        <barButtonItem title="All" id="169">
+                            <connections>
+                                <action selector="doSelectAll:" destination="-1" id="171"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem systemItem="action" id="203">
+                            <connections>
+                                <action selector="doAction:" destination="-1" id="204"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem title="Paste" id="175">
+                            <connections>
+                                <action selector="doPaste:" destination="-1" id="176"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="129"/>
+                        <barButtonItem style="plain" id="132">
+                            <view key="customView" opaque="NO" clearsContextBeforeDrawing="NO" userInteractionEnabled="NO" contentMode="scaleToFill" id="131">
+                                <rect key="frame" x="403" y="6" width="66" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="State=255" textAlignment="right" lineBreakMode="tailTruncation" minimumFontSize="10" id="133">
+                                        <rect key="frame" x="0.0" y="5" width="65" height="21"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="13"/>
+                                        <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                            </view>
+                        </barButtonItem>
+                        <barButtonItem style="plain" id="120">
+                            <view key="customView" contentMode="scaleToFill" id="119" customClass="StateView">
+                                <rect key="frame" x="479" y="5.5" width="33" height="33"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
+                        </barButtonItem>
+                        <barButtonItem width="10" style="plain" systemItem="fixedSpace" id="214"/>
+                        <barButtonItem style="plain" id="114">
+                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="112">
+                                <rect key="frame" x="532" y="7" width="216" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="Draw"/>
+                                    <segment title="Pick"/>
+                                    <segment title="Select"/>
+                                    <segment title="Move"/>
+                                </segments>
+                                <connections>
+                                    <action selector="doChangeMode:" destination="-1" eventType="valueChanged" id="141"/>
+                                </connections>
+                            </segmentedControl>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="178">
+                    <rect key="frame" x="0.0" y="932" width="768" height="44"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                    <items>
+                        <barButtonItem title="New" width="50" id="179">
+                            <connections>
+                                <action selector="doNew:" destination="-1" id="182"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="188"/>
+                        <barButtonItem title="Rule" width="50" id="206">
+                            <connections>
+                                <action selector="doRule:" destination="-1" id="208"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem width="40" style="plain" systemItem="fixedSpace" id="210"/>
+                        <barButtonItem title="Info" width="50" id="209">
+                            <connections>
+                                <action selector="doInfo:" destination="-1" id="212"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem width="40" style="plain" systemItem="fixedSpace" id="211"/>
+                        <barButtonItem systemItem="save" id="181">
+                            <connections>
+                                <action selector="doSave:" destination="-1" id="184"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="207"/>
+                        <barButtonItem title="Full Screen" id="187">
+                            <connections>
+                                <action selector="toggleFullScreen:" destination="-1" id="193"/>
+                            </connections>
+                        </barButtonItem>
+                    </items>
+                </toolbar>
+                <view contentMode="scaleToFill" id="217">
+                    <rect key="frame" x="192" y="414" width="384" height="197"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES" flexibleMaxY="YES"/>
+                    <subviews>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Title" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="218">
+                            <rect key="frame" x="20" y="20" width="344" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Estimated time remaining" textAlignment="center" lineBreakMode="tailTruncation" minimumFontSize="10" id="219">
+                            <rect key="frame" x="20" y="49" width="344" height="21"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <progressView opaque="NO" contentMode="scaleToFill" progress="0.5" id="220">
+                            <rect key="frame" x="20" y="94" width="344" height="2"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        </progressView>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="221">
+                            <rect key="frame" x="155" y="140" width="74" height="37"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <state key="normal" title="Cancel">
+                                <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                            </state>
+                            <connections>
+                                <action selector="doCancel:" destination="-1" eventType="touchUpInside" id="227"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+            <nil key="simulatedStatusBarMetrics"/>
+        </view>
+    </objects>
+</document>

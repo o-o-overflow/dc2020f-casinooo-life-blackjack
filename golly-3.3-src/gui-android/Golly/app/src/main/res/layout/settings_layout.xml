@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:gravity="center"
+    android:background="#EEEEEE"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <LinearLayout
+        android:layout_gravity="center"
+        android:background="#EEEEEE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/randperc"
+                android:minWidth="0dp"
+                android:layout_width="60sp"
+                android:layout_height="wrap_content"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+            />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="16sp"
+                android:text="Random fill percentage"
+            />
+        </LinearLayout>
+        
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/maxmem"
+                android:minWidth="0dp"
+                android:layout_width="60sp"
+                android:layout_height="wrap_content"
+                android:selectAllOnFocus="true"
+                android:inputType="number"
+            />
+		    <TextView
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:singleLine="true"
+		        android:textSize="16sp"
+		        android:text="Max hash memory (MB)"
+            />
+        </LinearLayout>
+        
+	    <CheckBox android:id="@+id/checkbox_hash"
+	        android:layout_marginTop="10sp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Show hashing messages"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_time"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Show timing messages"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_beep"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Play beep sound"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_swap"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Invert cell colors"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_icon"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Show icons"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_undo"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Can undo/redo"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    <CheckBox android:id="@+id/checkbox_grid"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="Show grid lines"
+	        android:onClick="onCheckboxClicked"
+	    />
+	    
+        <Button android:id="@+id/pmode"
+            android:layout_marginTop="10sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="doPasteMode"
+            android:text="Paste mode: ?"
+        />
+	    </LinearLayout>
+
+</LinearLayout>

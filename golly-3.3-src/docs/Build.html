@@ -1,0 +1,830 @@
+<html>
+<title>How to build Golly</title>
+<body bgcolor="#FFFFCE">
+<center><table border=0 width=600><tr><td>
+
+<p>
+This document contains instructions for how to build the desktop version of Golly.
+
+
+<h2>Contents</h2>
+
+<p>
+<a href="#wxinstall"><b>How to install wxWidgets</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#wxwin"><b>On Windows</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#wxmac"><b>On Mac OS X</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#wxlin"><b>On Linux</b></a><br>
+<a href="#python"><b>How to install Python</b></a><br>
+<a href="#golly"><b>How to build Golly</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#gwin"><b>On Windows</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#gmac"><b>On Mac OS X</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#glin"><b>On Linux</b></a><br>
+<a href="#configure"><b>Building Golly using configure</b></a><br>
+<a href="#sound"><b>How to install optional sound with irrKlang</b></a><br>
+<a href="#bgolly"><b>How to build bgolly</b></a><br>
+<a href="#source"><b>Source code road map</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#dir"><b>Directory structure</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#guiwx"><b>High-level GUI code</b></a><br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#base"><b>Low-level base code</b></a>
+
+
+<a name="wxinstall"></a>
+<h2>How to install wxWidgets</h2>
+
+<p>
+If you want to build Golly from source code then you'll have to install wxWidgets first.
+Visit <a href="http://www.wxwidgets.org/downloads">http://www.wxwidgets.org/downloads</a>
+and grab the appropriate source archive for your platform:
+
+<ul>
+<li> On Windows, get the wxMSW source installer.
+<li> On Mac OS X or Linux, get the source archive for the latest stable release.
+</ul>
+
+<p>
+Golly should compile with wxWidgets 2.8.0 or later, but it's best to
+use the latest stable version (3.0.2 at time of writing).
+Mac users should definitely get 3.1 or later if you have Mac OS 10.9+.
+
+<a name="wxwin"></a>
+<h3>On Windows</h3>
+
+<p>
+If your wxWidgets version is earlier than 3.0 then you need to enable OpenGL.
+Edit <tt>\wxWidgets\include\wx\msw\setup.h</tt>, find the line
+"<tt>#define wxUSE_GLCANVAS 0</tt>" and change the value to 1.
+If you've previously built wxWidgets 2.x without OpenGL enabled then you might
+also need to edit <tt>\wxWidgets\lib\vc_lib\mswu\wx\setup.h</tt>, change
+<tt>wxUSE_GLCANVAS</tt> to 1, then run "<tt>nmake -f makefile.vc clean</tt>"
+before running "<tt>nmake -f makefile.vc</tt>".
+
+<p>
+If you only want to build one wxWidgets configuration (e.g. a 32-bit release) then
+it's a good idea to edit <tt>\wxWidgets\build\msw\config.vc</tt> and set all these options:
+
+<pre>
+   BUILD=release
+   DEBUG_INFO=0
+   DEBUG_FLAG=0
+   UNICODE=1             (already 1 in wxWidgets 3.0+)
+   USE_OPENGL=1          (already 1 in wxWidgets 3.0+)
+   TARGET_CPU=X64        (only if you want a 64-bit build)
+   RUNTIME_LIBS=static
+</pre>
+
+<p>
+Then you can build wxWidgets very simply:
+
+<pre>
+   cd \wxWidgets\build\msw
+   nmake -f makefile.vc
+</pre>
+
+<p>
+If you don't edit config.vc then you'll need to pass all the options to nmake, like so:
+
+<p>
+For a 64-bit release build, open a x64 Visual Studio command prompt
+(e.g. VS2012 x64 Cross Tools Command Prompt) and type:
+
+<pre>
+   cd \wxWidgets\build\msw
+   nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static DEBUG_INFO=0 DEBUG_FLAG=0 TARGET_CPU=X64
+                        UNICODE=1 USE_OPENGL=1
+</pre>
+
+<p>
+For a 32-bit release build, open a x32 Visual Studio command prompt
+(e.g. Developer Command Prompt for VS2012) and type:
+
+<pre>
+   cd \wxWidgets\build\msw
+   nmake -f makefile.vc BUILD=release RUNTIME_LIBS=static DEBUG_INFO=0 DEBUG_FLAG=0
+                        UNICODE=1 USE_OPENGL=1
+</pre>
+
+
+<a name="wxmac"></a>
+<h3>On Mac OS X</h3>
+
+<p>
+Unpack the wxWidgets source archive wherever you like.
+Before building wxWidgets you need to make a couple of small but important
+changes to the source code:
+
+<ol>
+<li>
+Open <tt>src/osx/nonownedwnd_osx.cpp</tt> and edit the <tt>wxNonOwnedWindow::Update</tt>
+routine so that it looks like this:
+
+<pre>
+void wxNonOwnedWindow::Update()
+{
+    m_nowpeer->Update();
+}
+</pre>
+
+<p>
+This routine is called whenever a Golly script wants to update the viewport.
+Without this change, scripts like heisenburp.lua will run way too fast.
+
+<li>
+Open <tt>src/osx/cocoa/scrolbar.mm</tt> and edit the <tt>wxOSXScrollBarCocoaImpl::mouseEvent</tt>
+routine so that it begins like this:
+
+<pre>
+static bool in_mouseEvent = false;
+void wxOSXScrollBarCocoaImpl::mouseEvent(WX_NSEvent event, WXWidget slf, void *_cmd)
+{
+    // avoid crash due to possible re-entrancy
+    if (in_mouseEvent) return;
+    in_mouseEvent = true;
+    wxWidgetCocoaImpl::mouseEvent(event, slf, _cmd);
+    in_mouseEvent = false;
+</pre>
+</ol>
+
+<p>
+Now you're ready to build wxWidgets.  If you're using Mac OS 10.9 or later
+then start up Terminal and type these commands (using the correct path and version number):
+
+<pre>
+   cd /path/to/wxWidgets-3.1.0
+   mkdir build-osx
+   cd build-osx
+   ../configure --with-osx_cocoa --disable-shared --enable-unicode --with-macosx-version-min=10.9
+                --disable-mediactrl
+   make
+</pre>
+
+<p>
+If your Mac OS is older than 10.9 then these commands should work
+(again, use the correct path and version number):
+
+<pre>
+   cd /path/to/wxWidgets-3.0.2
+   mkdir build-osx
+   cd build-osx
+   ../configure --with-osx_cocoa --disable-shared --enable-unicode
+   make
+</pre>
+
+
+<a name="wxlin"></a>
+<h3>On Linux</h3>
+
+<p>
+Before building the wxWidgets libraries you might need to install some packages
+for OpenGL development.  For example, on Ubuntu:
+
+<pre>
+   sudo apt-get install mesa-common-dev
+   sudo apt-get install freeglut3-dev
+</pre>
+
+<p>
+Unpack the wxWidgets source archive wherever you like, start up a terminal
+session and type these commands (using the correct version number):
+
+<pre>
+   cd /path/to/wxWidgets-3.0.2
+   mkdir build-gtk
+   cd build-gtk
+   ../configure --with-gtk --disable-shared --enable-unicode --with-opengl
+   make
+   sudo make install
+   sudo ldconfig
+</pre>
+
+<p>
+This installs the wx libraries in a suitable directory.  It also
+installs the wx-config program which will be called by makefile-gtk
+to set the appropriate compile and link options for building Golly.
+
+
+<a name="python"></a>
+<h2>How to install Python</h2>
+
+<p>
+Golly uses Python 2.x for scripting, so you'll need to make sure a suitable
+version of Python is installed (note that Python 3.x is NOT supported).
+Mac OS X users don't have to do anything because Python 2.7 is already installed.
+Windows and Linux users can download a Python 2.7 installer from
+<a href="http://www.python.org/download">http://www.python.org/download</a>.
+
+
+
+<a name="golly"></a>
+<h2>How to build Golly</h2>
+
+<p>
+Once wxWidgets and Python are installed, building Golly should be relatively easy:
+
+<a name="gwin"></a>
+<h3>On Windows</h3>
+
+<p>
+First, locate local-win-template.mk in the <b>gui-wx</b> folder and copy it
+to a new file called local-win.mk.  This file is included by makefile-win.
+Edit local-win.mk and specify where wxWidgets is installed by changing the
+WX_DIR path near the start of the file.  Also make sure WX_RELEASE specifies
+the first two digits of your wxWidgets version.
+The headers for Python must also be included, so change the path for
+PYTHON_INCLUDE if necessary.  Now you're ready to build Golly.
+
+<p>
+If you edited config.vc to set all the options then it's simple:
+
+<pre>
+   cd \path\to\golly\gui-wx
+   nmake -f makefile-win
+</pre>
+
+<p>
+Otherwise you'll need to specify all the same options that were used to build wxWidgets:
+
+<p>
+For a 64-bit build:
+
+<pre>
+   nmake -f makefile-win BUILD=release RUNTIME_LIBS=static DEBUG_INFO=0 DEBUG_FLAG=0 TARGET_CPU=X64
+                         UNICODE=1 USE_OPENGL=1
+</pre>
+
+<p>
+For a 32-bit build:
+
+<pre>
+   nmake -f makefile-win BUILD=release RUNTIME_LIBS=static DEBUG_INFO=0 DEBUG_FLAG=0
+                         UNICODE=1 USE_OPENGL=1
+</pre>
+
+<a name="gmac"></a>
+<h3>On Mac OS X</h3>
+
+<p>
+Go to the <b>gui-wx</b> folder and make a copy of makefile-mac called makefile.
+Edit makefile and specify where wxWidgets is installed by changing the WX_DIR
+path near the start of the file.  Also make sure WX_RELEASE specifies the first
+two digits of your wxWidgets version.
+
+<p>
+On Mac OS 10.6 or later you can then build a 64-bit Cocoa version of Golly
+by opening a Terminal window and doing:
+
+<pre>
+   cd /path/to/golly/gui-wx
+   make
+</pre>
+
+<a name="glin"></a>
+<h3>On Linux</h3>
+
+<p>
+You will probably need to add some development packages first.
+For example, from a default Ubuntu install (at the time of writing)
+you will need to install the following packages for GTK-2 and Python 2.7:
+
+<pre>
+   sudo apt-get install libgtk2.0-dev
+   sudo apt-get install python2.7-dev
+</pre>
+
+<p>
+Then you can build the golly executable:
+   
+<pre>
+   cd /path/to/golly/gui-wx
+   make -f makefile-gtk
+</pre>
+
+<p>
+Note that the CXXFLAGS and LDFLAGS environmental variables may be
+used to append to (and override) the package default flags.
+Additionally, GOLLYDIR specifies an absolute directory path to look
+for the application data files.  For system-wide installation, it
+probably makes sense to set GOLLYDIR to /usr/share/golly and install
+the Help, Patterns, Scripts and Rules directories in there.
+
+
+<a name="configure"></a>
+<h2>Building Golly using configure</h2>
+
+<p>
+Golly can be built using the standard GNU build tools.
+If you obtained the Golly source code from the Git repository instead of a
+source release, you need to generate the configure script first:
+
+<pre>
+   cd /path/to/golly/gui-wx/configure
+   ./autogen.sh
+</pre>
+
+<p>
+This requires that autoconf and automake are installed.
+
+<p>
+The configure script offers various options to customize building and
+installation. For an overview of the available options, run:
+
+<pre>
+   ./configure --help
+</pre>
+
+<p>
+Run the configure script to create an appropriate Makefile for your
+operating system and then run <code>make</code> to build Golly.
+For example, for a system-wide installation, you could do this:
+
+<pre>
+   cd /path/to/golly/gui-wx/configure
+   ./configure
+   make
+   make install
+</pre>
+
+<p>
+To avoid mixing the source code with the build artifacts, you can create a
+separate build directory and call the configure script from there:
+
+<pre>
+   mkdir golly-build
+   cd golly-build
+   /path/to/golly/gui-wx/configure
+   make
+   # etc.
+</pre>
+
+To clean up the build artifacts after installation, simply remove the build
+directory (e.g., with <code>rm -R golly-build</code>).
+
+
+<a name="sound"></a>
+<h2>How to install optional sound with irrKlang</h2>
+
+<p>
+Golly can use the irrKlang library to play sounds. The Overlay has a sound command that can be used
+in Lua scripts to do this.
+<p>
+You can download the irrKlang library from
+<a href="http://www.ambiera.com/irrklang/downloads.html">http://www.ambiera.com/irrklang/downloads.html</a>.
+Make sure you get the correct version, 32-bit or 64-bit, to match the build of Golly you want to do.
+The download is a zip file containing the libraries for Windows, Mac OS and Linux.
+Golly has been tested with irrKlang 1.5 and 1.6.
+
+<p>
+Unzip the download file.  You then need to edit the makefile for your platform to enable sound and then
+<a href="#golly">build Golly</a>.
+
+<h3>On Windows</h3>
+Edit local-win.mk and uncomment the line:
+<pre>
+ENABLE_SOUND = 1
+</pre>
+Change the path for IRRKLANGDIR to the full path of where you unzipped the irrKlang zip file.
+
+<h3>On Mac OS X</h3>
+Edit makefile-mac and uncomment the line:
+<pre>
+ENABLE_SOUND = 1
+</pre>
+Change the path for IRRKLANGDIR to match where you unzipped the irrKlang zip file.
+
+<h3>On Linux</h3>
+Edit makefile-gtk and uncomment the line:
+<pre>
+ENABLE_SOUND = 1
+</pre>
+Change the path for IRRKLANGDIR to match where you unzipped the irrKlang zip file.
+
+<a name="bgolly"></a>
+<h2>How to build bgolly</h2>
+
+<p>
+The above make/nmake commands will also create bgolly, a simple "batch mode"
+version of Golly without any GUI.  To build bgolly separately, just specify
+bgolly as the target of the make/nmake command.  For example, on Linux:
+
+<pre>
+   make -f makefile-gtk bgolly
+</pre>
+
+<p>
+You don't need to install wxWidgets or Python to build bgolly.
+
+
+<a name="source"></a>
+<h2>Source code road map</h2>
+
+<p>
+If you'd like to modify Golly then the following information should help you get started.
+
+<a name="dir"></a>
+<h3>Directory structure</h3>
+
+Golly's source code can be downloaded from Sourceforge as a Git repository or as
+a .tar.gz file.  You should see the following directories:
+
+<p><b>cmdline</b><p>
+<dd>
+   Contains source code for bgolly and RuleTableToTree
+   (the latter program is no longer included in the binary distribution).
+</dd>
+
+<p><b>docs</b><p>
+<dd>
+   Contains documentation in the form of .html files.
+</dd>
+
+<p><b>gollybase</b><p>
+<dd>
+   Contains the low-level source code used by the client code in <b>cmdline</b>
+   and the various <b>gui-*</b> directories.  See <a href="#base">below</a> for a
+   description of the various files.
+</dd>
+
+<p><b>gui-android</b><p>
+<dd>
+   Contains source code and resources for the Android version of Golly.
+</dd>
+
+<p><b>gui-common</b><p>
+<dd>
+   Contains the GUI code and help files shared by the Android and iPad versions
+   of Golly.
+</dd>
+
+<p><b>gui-ios</b><p>
+<dd>
+   Contains source code and resources for the iPad version of Golly.
+</dd>
+
+<p><b>gui-web</b><p>
+<dd>
+   Contains source code and resources for a web version of Golly.
+</dd>
+
+<p><b>gui-wx</b><p>
+<dd>
+   Contains the high-level wxWidgets code for the desktop version of Golly
+   (see <a href="#guiwx">below</a> for more details).
+   Also contains other files and resources needed to build Golly
+   (make files, bitmap files, icon files, etc).
+</dd>
+
+<p><b>lua</b><p>
+<dd>
+   Contains the source code for Lua.
+</dd>
+
+<p><b>Help</b><p>
+<dd>
+   Contains various .html files that are accessed from Golly's Help menu.
+</dd>
+
+<p><b>Patterns</b><p>
+<dd>
+   Contains a state-of-the-art pattern collection.
+</dd>
+
+<p><b>Rules</b><p>
+<dd>
+   Contains various .rule files.  These files contain table/tree data
+   (loaded by the RuleLoader algorithm) and optional color/icon data
+   (used by the GUI code to render patterns).
+</dd>
+
+<p><b>Scripts</b><p>
+<dd>
+   Contains Lua and Python scripts that can be run by Golly.
+</dd>
+
+<p>
+Note that the executables (Golly and bgolly) are created in the same location
+as the above directories.  This means you can test a new Golly build without
+having to copy it somewhere else because the required directories
+(Help, Patterns, Rules and Scripts) are in the correct location.
+
+
+<a name="guiwx"></a>
+<h3>High-level GUI code</h3>
+
+<p>
+The desktop version of Golly uses wxWidgets to implement the graphical user interface.
+All the GUI code is stored in the <b>gui-wx</b> directory in a number of wx* files.
+Each module is described in (roughly) top-down order, and some key routines are mentioned:
+
+<p><b>wxgolly.*</b><p>
+<dd>
+   Defines the GollyApp class.<br>
+   GollyApp::OnInit() is where it all starts.
+</dd>
+
+<p><b>wxmain.*</b><p>
+<dd>
+   Defines the MainFrame class for the main window.<br>
+   MainFrame::OnMenu() handles all menu commands.<br>
+   MainFrame::UpdateEverything() updates all parts of the GUI.
+</dd>
+
+<p><b>wxfile.cpp</b><p>
+<dd>
+   Implements various File menu functions.<br>
+   MainFrame::NewPattern() creates a new, empty universe.<br>
+   MainFrame::LoadPattern() reads in a pattern file.
+</dd>
+
+<p><b>wxcontrol.cpp</b><p>
+<dd>
+   Implements various Control menu functions.<br>
+   MainFrame::StartGenerating() starts generating a pattern.<br>
+   MainFrame::ChangeAlgorithm() switches to a new algorithm.
+</dd>
+
+<p><b>wxtimeline.*</b><p>
+<dd>
+   Users can record/play a sequence of steps called a "timeline".<br>
+   CreateTimelineBar() creates timeline bar below the viewport window.<br>
+   StartStopRecording() starts or stops recording a timeline.<br>
+   DeleteTimeline() deletes an existing timeline.
+</dd>
+
+<p><b>wxrule.*</b><p>
+<dd>
+   Users can change the current rule.<br>
+   ChangeRule() opens the Set Rule dialog.
+</dd>
+
+<p><b>wxedit.*</b><p>
+<dd>
+   Implements edit bar functions.<br>
+   CreateEditBar() creates the edit bar above the viewport window.<br>
+   ToggleEditBar() shows/hides the edit bar.
+</dd>
+
+<p><b>wxselect.*</b><p>
+<dd>
+   Defines the Selection class for operations on selections.<br>
+   Selection::CopyToClipboard() copies the selection to the clipboard.<br>
+   Selection::RandomFill() randomly fills the current selection.<br>
+   Selection::Rotate() rotates the current selection.<br>
+   Selection::Flip() flips the current selection.
+</dd>
+
+<p><b>wxview.*</b><p>
+<dd>
+   Defines the PatternView class for the viewport window.<br>
+   PatternView::ProcessKey() processes keyboard shortcuts.<br>
+   PatternView::ProcessClick() processes mouse clicks.
+</dd>
+
+<p><b>wxrender.*</b><p>
+<dd>
+   Implements routines for rendering the viewport using OpenGL.<br>
+   DrawView() draws the pattern, grid lines, selection, etc.
+</dd>
+
+<p><b>wxalgos.*</b><p>
+<dd>
+   Implements support for multiple algorithms.<br>
+   InitAlgorithms() initializes all algorithms and algoinfo data.<br>
+   CreateNewUniverse() creates a new universe of given type.
+</dd>
+
+<p><b>wxlayer.*</b><p>
+<dd>
+   Defines the Layer class and implements Layer menu functions.<br>
+   AddLayer() adds a new, empty layer.<br>
+   DeleteLayer() deletes the current layer.<br>
+   SetLayerColors() lets user change the current layer's colors.
+</dd>
+
+<p><b>wxundo.*</b><p>
+<dd>
+   Defines the UndoRedo class for unlimited undo/redo.<br>
+   UndoRedo::RememberCellChanges() saves cell state changes.<br>
+   UndoRedo::UndoChange() undoes a recent change.<br>
+   UndoRedo::RedoChange() redoes an undone change.
+</dd>
+
+<p><b>wxstatus.*</b><p>
+<dd>
+   Implements a status bar at the top of the main window.<br>
+   StatusBar::DrawStatusBar() shows gen count, pop count, etc.<br>
+   StatusBar::DisplayMessage() shows message in bottom line.
+</dd>
+
+<p><b>wxhelp.*</b><p>
+<dd>
+   Implements a modeless help window.<br>
+   ShowHelp() displays a given .html file.
+</dd>
+
+<p><b>wxinfo.*</b><p>
+<dd>
+   Implements a modeless info window.<br>
+   ShowInfo() displays the comments in a given pattern file.
+</dd>
+
+<p><b>wxscript.*</b><p>
+<dd>
+   Implements the high-level scripting interface.<br>
+   RunScript() runs a given script file.
+</dd>
+
+<p><b>wxlua.*</b><p>
+<dd>
+   Implements Lua script support.<br>
+   RunLuaScript() runs a given .lua file.
+</dd>
+
+<p><b>wxoverlay.*</b><p>
+<dd>
+   Implements the overlay commands.<br>
+   DoOverlayCommand() is where it all starts.
+</dd>
+
+<p><b>wxperl.*</b><p>
+<dd>
+   Implements Perl script support if ENABLE_PERL is defined.<br>
+   No longer officially supported.
+</dd>
+
+<p><b>wxpython.*</b><p>
+<dd>
+   Implements Python script support.<br>
+   RunPythonScript() runs a given .py file.
+</dd>
+
+<p><b>wxprefs.*</b><p>
+<dd>
+   Routines for loading, saving and changing user preferences.<br>
+   GetPrefs() loads data from GollyPrefs file.<br>
+   SavePrefs() writes data to GollyPrefs file.<br>
+   ChangePrefs() opens the Preferences dialog.
+</dd>
+
+<p><b>wxutils.*</b><p>
+<dd>
+   Implements various utility routines.<br>
+   Warning() displays message in modal dialog.<br>
+   Fatal() displays message and exits the app.
+</dd>
+
+<a name="base"></a>
+<h3>Low-level base code</h3>
+
+<p>
+The <b>gollybase</b> directory contains low-level code used by all the
+various clients (desktop Golly, bgolly, and the Android/iPad/web versions):
+
+<p><b>platform.h</b><p>
+<dd>
+   Platform specific defines (eg. 64-bit changes).
+</dd>
+
+<p><b>lifealgo.*</b><p>
+<dd>
+   Defines abstract Life algorithm operations:<br>
+   lifealgo::setcell() sets given cell to given state.<br>
+   lifealgo::getcell() gets state of given cell.<br>
+   lifealgo::nextcell() finds next live cell in current row.<br>
+   lifealgo::step() advances pattern by current increment.<br>
+   lifealgo::fit() fits pattern within given viewport.<br>
+   lifealgo::draw() renders pattern in given viewport.
+</dd>
+
+<p><b>liferules.*</b><p>
+<dd>
+   Defines routines for setting/getting rules.<br>
+   liferules::setrule() parses and validates a given rule string.<br>
+   liferules::getrule() returns the current rule in canonical form.
+</dd>
+
+<p><b>lifepoll.*</b><p>
+<dd>
+   Allows lifealgo routines to do event processing.<br>
+   lifepoll::checkevents() processes any pending events.
+</dd>
+
+<p><b>viewport.*</b><p>
+<dd>
+   Defines abstract viewport operations:<br>
+   viewport::zoom() zooms into a given location.<br>
+   viewport::unzoom() zooms out from a given location.<br>
+   viewport::setmag() sets the magnification.<br>
+   viewport::move() scrolls view by given number of pixels.
+</dd>
+
+<p><b>liferender.*</b><p>
+<dd>
+   Defines abstract routines for rendering a pattern:<br>
+   liferender::pixblit() draws an area with at least one live cell.
+</dd>
+
+<p><b>qlifealgo.*</b><p>
+<dd>
+   Implements QuickLife, a fast, conventional algorithm.
+</dd>
+
+<p><b>hlifealgo.*</b><p>
+<dd>
+   Implements HashLife, a super fast hashing algorithm.
+</dd>
+
+<p><b>ghashbase.*</b><p>
+<dd>
+   Defines an abstract class so other algorithms can use hashlife
+   in a multi-state universe.
+</dd>
+
+<p><b>generationsalgo.*</b><p>
+<dd>
+   Implements the Generations family of rules.
+</dd>
+
+<p><b>ltlalgo.*</b><p>
+<dd>
+   Implements the Larger than Life family of rules.<br>
+   Currently the only algorithm that uses a finite universe.
+</dd>
+
+<p><b>jvnalgo.*</b><p>
+<dd>
+   Implements John von Neumann's 29-state CA and
+   32-state variants by Renato Nobili and Tim Hutton.
+</dd>
+
+<p><b>ruleloaderalgo.*</b><p>
+<dd>
+   Implements the RuleLoader algorithm which loads externally
+   specified rules stored in .rule files.
+</dd>
+
+<p><b>ruletable_algo.*</b><p>
+<dd>
+   Used by the RuleLoader algorithm to load table data.
+</dd>
+
+<p><b>ruletreealgo.*</b><p>
+<dd>
+   Used by the RuleLoader algorithm to load tree data.
+</dd>
+
+<p><b>qlifedraw.cpp</b><p>
+<dd>
+   Implements rendering routines for QuickLife.
+</dd>
+
+<p><b>hlifedraw.cpp</b><p>
+<dd>
+   Implements rendering routines for HashLife.
+</dd>
+
+<p><b>ghashdraw.cpp</b><p>
+<dd>
+   Implements rendering routines for all algos that use ghashbase.
+</dd>
+
+<p><b>ltldraw.cpp</b><p>
+<dd>
+   Implements rendering routines for Larger than Life.
+</dd>
+
+<p><b>readpattern.*</b><p>
+<dd>
+   Reads pattern files in a variety of formats.<br>
+   readpattern() loads a pattern into the given universe.<br>
+   readcomments() extracts comments from the given file.
+</dd>
+
+<p><b>writepattern.*</b><p>
+<dd>
+   Saves the current pattern in a file.<br>
+   writepattern() saves the pattern in a specified format.
+</dd>
+
+<p><b>bigint.*</b><p>
+<dd>
+   Implements operations on arbitrarily large integers.
+</dd>
+
+<p><b>util.*</b><p>
+<dd>
+   Utilities for displaying errors and progress info.<br>
+   warning() displays error message.<br>
+   fatal() displays error message and exits.
+</dd>
+
+
+<p>
+Have fun, and please let us know if you make any changes!
+
+<p>
+Andrew Trevorrow (<a href="mailto:andrew@trevorrow.com">andrew@trevorrow.com</a>)<br>
+Tom Rokicki (<a href="mailto:rokicki@gmail.com">rokicki@gmail.com</a>)<br>
+(on behalf of The Golly Gang)
+
+</td></tr></table></center>
+</body>
+</html>
