@@ -1,6 +1,8 @@
 # DC 2020 Freinals
-## Casinooo Life - Blackjack  
+## Casinooo Life - Blackjack
 ### SPOILERS - This readme contains spoilers if you want to play it with limited spoilers check it out at archive.ooo
+Challenge Author: TrickE with some help from Zardus
+
 Have you always wanted to be a professional gambler?  Are you ready to enjoy the easy casinooo life? Come and play our hot new blackjack game. We are the only casino around that will let you 'play it YOUR way' with your own blackjack bot. You have chance to beat the house and WIN IT ALL. For a safer experience, play at home with your own dealer (be sure you still tip them). Please see your interface for details. Some limitations apply. All dealer decisions final. If you have a gambling problem, please get help.
 
 ###Overview
