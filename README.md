@@ -1,13 +1,13 @@
-# DC 2020 Final
+# DC28 CTF Finals
 ## Casinooo Life - Blackjack
-### SPOILERS - This readme contains spoilers if you want to play it with limited spoilers check it out at archive.ooo
+### SPOILERS - This readme contains spoilers if you want to play it with limited spoilers scroll down to the bottom.
 Challenge Author: TrickE with some help from Zardus
-
+### Description
 Have you always wanted to be a professional gambler?  Are you ready to enjoy the easy casinooo life? Come and play our hot new blackjack game. We are the only casino around that will let you 'play it YOUR way' with your own blackjack bot. You have chance to beat the house and WIN IT ALL. For a safer experience, play at home with your own dealer (be sure you still tip them). Please see your interface for details. Some limitations apply. All dealer decisions final. If you have a gambling problem, please get help.
 
 ###Overview
 
-This service is comprised of 4 main components. A controller, a shuffler, player seats, and a dealer. The controller, shuffler, and dealer are Game of Life (GoL) components and are nitted together, in a somewhat Frankenstein fashion, using a heavily modified version of bgolly. The player seats are 16 data objects stored in memory inside the bgolly-dealer used the track the hand-to-hand play information (e.g., money in bank, wager size, current cards, etc.).   
+This service is comprised of 4 main components. A controller, a shuffler, player seats, and a dealer. The controller, shuffler, and dealer are Game of Life (GoL) components and are knitted together, in a somewhat Frankenstein fashion, using a heavily modified version of bgolly. The player seats are 16 data objects stored in memory inside the bgolly-dealer used the track the hand-to-hand play information (e.g., money in bank, wager size, current cards, etc.).   
 The components controller and dealer communicate run inside different processes that communicate using multiple regions of shared memory. 
 
 ![alt text](https://github.com/o-o-overflow/dc2020f-casinooo-life-blackjack/blob/master/overview-diagram.png?raw=true)
@@ -25,7 +25,7 @@ The initial controller uses the send/read opcodes to communicate with the dealer
 
 ![alt text](https://github.com/o-o-overflow/dc2020f-casinooo-life-blackjack/blob/master/network-input.png?raw=true)
   
-The bgolly-controller is responsible for writing out a READACTED version of the pattern, which is shared with the other teams. This READACTED version retains everything but the portion of the pattern denoted by the  LifeLock area.
+The bgolly-controller is responsible for writing out a REDACTED version of the pattern, which is shared with the other teams. This REDACTED version retains everything but the portion of the pattern denoted by the  LifeLock area.
 
 ###Communication Protocol
 
@@ -58,7 +58,7 @@ Although the reference implementation uses a single player token that's provided
 
 5. A controller can set a player token when sending the INIT message for a player, which should be sufficiently unique that it cannot be easily guessed by the other controllers, which will prevent them from spoofing messages that impacts their player.
 
-6. A controller can send an intentionally erronous BET message (i.e., the bet size exceeds their bank). In the error message information about the player's cards, which are set at INIT, are leaked. Although it is not the raw value of the cards, it is possible to determine how many cards 10 or greater will be in the player's starting hand.    
+6. A controller can send an intentionally erroneous BET message (i.e., the bet size exceeds their bank). In the error message information about the player's cards, which are set at INIT, are leaked. Although it is not the raw value of the cards, it is possible to determine how many cards 10 or greater will be in the player's starting hand.    
 
 7. A controller can set cells that allow for a hot-restart of the controller. If a simple CRC check of the cells in the zone (0,0 to 600,600) equals 0 in a controller that's loaded at the start of a round, the controller will reboot and load a newly updated controller in the middle of a round. 
 
@@ -70,7 +70,7 @@ xs ^= xs << 8;
 ```
 Thus, with just the session cookie provided to a player its possible to brute-force the sequence, outside the GoL, and load a new controller that can spoof the session cookies set by the CPU and send HIT or STAY messages as a spoofed player.
 
-9. To combat the atack in item 8, a player can reset their own GoL controller using the CRC check method. This causes the player they are controlling to be placed into a zombie mode. On re-initialization after the reloading, the zombie player is given a new session cookie, which is significantly harder to discover. 
+9. To combat the attack in item 8, a player can reset their own GoL controller using the CRC check method. This causes the player they are controlling to be placed into a zombie mode. On re-initialization after the reloading, the zombie player is given a new session cookie, which is significantly harder to discover. 
 
 #Building
 
