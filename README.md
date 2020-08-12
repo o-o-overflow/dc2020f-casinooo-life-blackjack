@@ -1,4 +1,4 @@
-# DC 2020 Freinals
+# DC 2020 Final
 ## Casinooo Life - Blackjack
 ### SPOILERS - This readme contains spoilers if you want to play it with limited spoilers check it out at archive.ooo
 Challenge Author: TrickE with some help from Zardus
