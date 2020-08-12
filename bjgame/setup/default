@@ -9,8 +9,6 @@ server {
 	#index index.html index.htm index.nginx-debian.html;
 
     # send / to flask app
-    rewrite ^$ /rs permanent;
-    rewrite ^/$ /rs permanent;
 
 	server_name _;
 

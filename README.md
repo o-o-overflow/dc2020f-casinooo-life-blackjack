@@ -72,6 +72,38 @@ Thus, with just the session cookie provided to a player its possible to brute-fo
 
 9. To combat the atack in item 8, a player can reset their own GoL controller using the CRC check method. This causes the player they are controlling to be placed into a zombie mode. On re-initialization after the reloading, the zombie player is given a new session cookie, which is significantly harder to discover. 
 
+#Building
+
+To build the container run the following command from the bjgame folder:
+```
+docker build -t casinooo .
+``` 
+
+Create a folder on your local machine in `/tmp/inputs`.
+ 
+The patterns in /tmp/inputs are for the team's controller. The files must follow the format `laas-bj-teams-controller-{TEAMID}.mc`, where TEAMID starts at 1 and increments from there.
+Thus, you to start, you can use something like:
+```
+cp bjgame/src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-1.mc
+cp bjgame/src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-2.mc
+cp bjgame/src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-3.mc
+```
+
+Next, use `docker run` and mount a volume at `/tmp/inputs` using -v:
+```
+docker run -it --rm -v /tmp/inputs:/tmp/inputs --name casinooo casinooo 
+```
+
+At this point the container should be up and running. You can update the patterns located at `/tmp/inputs` and the changes will be picked up either at the next round (or immediately if using the CRC reboot).
+
+You can look at the files locally using 
+```
+docker exec -it casinooo /bin/bash
+```
+
+You can look at the blackjack visualization on port 80 of the container.
+
+Good luck!
     
 
 
