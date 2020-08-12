@@ -52,7 +52,7 @@ class Game():
     TEAM_STEPS = "2000"
     SHUFFLER_STEPS = "250000"
     state_fn = "/gol/state.dat"
-    NUM_TEAMS = os.environ.get("NUM_TEAMS",16)
+    NUM_TEAMS = os.environ.get("NUM_TEAMS",3)
 
     def __init__(self):
         self.dealer_proc = None
