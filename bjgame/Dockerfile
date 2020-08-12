@@ -25,22 +25,27 @@ COPY --chown=oooser:www-data setup/supervisord.conf /etc/supervisord.conf
 COPY --chown=oooser:www-data src/play_blackjack.py           \
                              src/laas-bj-dealer-256byte.mc   \
                              src/laas-bj-shuffler_v3.mc      \
+                             src/reseter.py                  \
+                             src/little_bot.py               \
                              /gol/
 
+COPY --chown=oooser:www-data src/bj /gol/bj
+
 COPY --chown=oooser:www-data src/bgolly-dealer /gol
-COPY --chown=oooser:www-data src/bgolly-player /gol
+COPY --chown=oooser:www-data src/bgolly-controller /gol
 
 RUN chmod +x /gol/play_blackjack.py /gol/bgolly-*
 
 USER oooser
-RUN mkdir /tmp/inputs
+RUN mkdir /tmp/inputs /gol/bj/results
 
 ##ADDHERE
 
-COPY src/state.dat /gol/state.dat
+COPY --chown=oooser:www-data src/state.dat /gol/state.dat
 RUN mkdir -p /gol/inputs
 COPY src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-1.mc
 COPY src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-2.mc
 COPY src/laas-bj-teams-controller-1.mc /tmp/inputs/laas-bj-teams-controller-3.mc
 USER root
+
 CMD /etc/init.d/nginx start && /usr/bin/supervisord

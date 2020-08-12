@@ -112,7 +112,7 @@ WXOBJ = $(OBJDIR)/wxutils.o $(OBJDIR)/wxprefs.o $(OBJDIR)/wxalgos.o $(OBJDIR)/wx
    $(OBJDIR)/wxfile.o $(OBJDIR)/wxedit.o $(OBJDIR)/wxcontrol.o $(OBJDIR)/wxtimeline.o \
    $(OBJDIR)/wxundo.o $(OBJDIR)/wxselect.o $(OBJDIR)/wxlayer.o $(OBJDIR)/wxmain.o $(OBJDIR)/wxgolly.o
 
-all: $(OBJDIR) bgolly-dealer bgolly-player
+all: $(OBJDIR) bgolly-dealer bgolly-controller
 
 $(BASEOBJ): $(BASEH)
 $(WXOBJ): $(BASEH) $(WXH) icons/appicon.xpm bitmaps/*.xpm
@@ -122,7 +122,7 @@ $(OBJDIR):
 
 clean: 
 	rm -f $(OBJDIR)/*.o
-	rm -f $(EXEDIR)/golly $(EXEDIR)/bgolly-player $(EXEDIR)/bgolly-dealer $(EXEDIR)/bgolly-dealer-builder  $(EXEDIR)/bgolly-dealer-builder $(EXEDIR)/RuleTableToTree $(IRRKLANG_LOCAL)
+	rm -f $(EXEDIR)/golly $(EXEDIR)/bgolly-controller $(EXEDIR)/bgolly-dealer $(EXEDIR)/bgolly-dealer-builder  $(EXEDIR)/bgolly-dealer-builder $(EXEDIR)/RuleTableToTree $(IRRKLANG_LOCAL)
 	-(cd $(LUADIR) && $(MAKE) clean)
 
 ifdef ENABLE_SOUND
@@ -137,14 +137,14 @@ $(LDFLAGS) $(ZLIB_LDFLAGS) $(EXTRALIBS_OPENGL) $(WX_LDFLAGS) $(PYTHON_LINK) $(PE
 bgolly-dealer: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-dealer.o
 	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-dealer $(BASEOBJ) $(OBJDIR)/bgolly-dealer.o $(LDFLAGS) $(ZLIB_LDFLAGS)
 
-bgolly-player: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-player.o
-	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-player $(BASEOBJ) $(OBJDIR)/bgolly-player.o $(LDFLAGS) $(ZLIB_LDFLAGS)
+bgolly-controller: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-controller.o
+	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-controller $(BASEOBJ) $(OBJDIR)/bgolly-controller.o $(LDFLAGS) $(ZLIB_LDFLAGS)
 
 bgolly-dealer-builder: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-dealer.o
 	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-dealer-builder $(BASEOBJ) $(OBJDIR)/bgolly-dealer.o $(LDFLAGS) $(ZLIB_LDFLAGS)
 
-bgolly-player-builder: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-player.o
-	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-player-builder $(BASEOBJ) $(OBJDIR)/bgolly-player.o $(LDFLAGS) $(ZLIB_LDFLAGS)
+bgolly-controller-builder: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/bgolly-controller.o
+	$(CXXC) $(CXXFLAGS) -o $(EXEDIR)/bgolly-controller-builder $(BASEOBJ) $(OBJDIR)/bgolly-controller.o $(LDFLAGS) $(ZLIB_LDFLAGS)
 
 
 RuleTableToTree: $(OBJDIR) $(BASEOBJ) $(OBJDIR)/RuleTableToTree.o
@@ -156,8 +156,8 @@ $(LUALIB):
 $(OBJDIR)/bgolly-dealer.o: $(CMDDIR)/bgolly-dealer.cpp
 	$(CXXC) $(CXXFLAGS) $(ZLIB_CXXFLAGS) -c -o $@ $(CMDDIR)/bgolly-dealer.cpp
 
-$(OBJDIR)/bgolly-player.o: $(CMDDIR)/bgolly-player.cpp
-	$(CXXC) $(CXXFLAGS) $(ZLIB_CXXFLAGS) -c -o $@ $(CMDDIR)/bgolly-player.cpp
+$(OBJDIR)/bgolly-controller.o: $(CMDDIR)/bgolly-controller.cpp
+	$(CXXC) $(CXXFLAGS) $(ZLIB_CXXFLAGS) -c -o $@ $(CMDDIR)/bgolly-controller.cpp
 
 $(OBJDIR)/RuleTableToTree.o: $(CMDDIR)/RuleTableToTree.cpp
 	$(CXXC) $(CXXFLAGS) -c -o $@ $(CMDDIR)/RuleTableToTree.cpp

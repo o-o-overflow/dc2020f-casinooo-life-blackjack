@@ -52,7 +52,7 @@ class Game():
     TEAM_STEPS = "2000"
     SHUFFLER_STEPS = "250000"
     state_fn = "/gol/state.dat"
-    NUM_TEAMS = os.environ.get("NUM_TEAMS",3)
+    NUM_TEAMS = os.environ.get("NUM_TEAMS",16)
 
     def __init__(self):
         self.dealer_proc = None
@@ -82,7 +82,7 @@ class Game():
         rpaths = get_result_paths(round_id)
         mcfn = os.path.join("/gol", "inputs", f"laas-bj-teams-controller-{team_id}.mc")
 
-        team_cmd = ["./bgolly-player", "-R", "-q", "-a", "RuleLoader", "-s", "./", "-r", "Varlife",
+        team_cmd = ["./bgolly-controller", "-R", "-q", "-a", "RuleLoader", "-s", "./", "-r", "Varlife",
                     "-m", Game.MAX_GENERATIONS, "-i", Game.TEAM_STEPS, "-o", f"{rpaths['base']}/laas-controller-team-{team_id}.mc",
                     mcfn]
         env = os.environ

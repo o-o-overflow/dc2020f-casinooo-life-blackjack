@@ -3,7 +3,7 @@ server {
 	listen 80 default_server;
 	listen [::]:80 default_server;
 
-	root /app/bj;
+	root /gol/bj;
 
 	# Add index.php to the list if you are using PHP
 	#index index.html index.htm index.nginx-debian.html;

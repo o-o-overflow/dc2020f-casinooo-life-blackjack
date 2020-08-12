@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 import time
 
-cnt = 0
+cnt = 1
 
 while True:
     print(f"Starting Round #{cnt}")
