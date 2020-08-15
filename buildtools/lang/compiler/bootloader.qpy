@@ -1,0 +1,30 @@
+#include stdint
+
+sub main
+    int signal = 1
+    int copy_pos = 0
+    int map[34] = [20685,20681,20674,42303,56257,56257,46013,54217,54221,49929,62413,53193,57277,61321,50089,52207,51425,51425,34989,51337,51337,51369,51851,59673,49289,51369,51337,35993,51337,51625,59081,56011,55881,42303]
+    int i = 0
+    int total = 0
+
+    while i < 34 do
+        int num = map[i]
+        num = num ^ 23232
+        total += num & 255
+        # this is the vulnerable spot
+        map[i] = num
+        i += 1
+
+    # any write to end enables copy to gameCPU
+    if total == 2649
+        int the_ennd = 32221
+        i = 0
+        # by copying all map positions after enabling write to gameCPU
+        while i < 34 do
+            copy_pos = map[i]
+            i+= 1
+        # reading from  signal closes
+        signal = signal
+
+
+    signal = 0

@@ -1,0 +1,120 @@
+#include stdint
+#outfilename laas-bj-dealer-256byte.mc
+# location of the pattern to load the assembly into ^^^^^
+sub main
+    int action = 1
+    int incoming_type = 0
+    int tmp_card = 0
+    int dlr_result = 0
+    int dlr_cards = 0
+    # format of player_cards CARD|CARD|low_results|00|Ace, low_results (5-bits) assumed an ace is 1, Ace is 1 bit indicating whether an Ace is present in cards
+    # 0xA3 == 10|3  0x68 = 0xC|00|0
+    int player_cards = 0
+    int player_result = 0
+    int new_card = 0
+    int acecnt = 0
+    int player_bank = 0
+    int player_bet = 0
+    # 010 0000000011111, bet 31
+    int netmsg = 0
+    int outmsg = 0
+    int session_id = 0
+    int tmp = 0
+    int player_id = 0
+    int old_bank = 0
+    #netmsg = 5 << 13
+    #player_cards = 0x5915
+    #dlr_result = 18
+    #dlr_cards = 0xA8
+    incoming_type = netmsg >> 13
+
+    #2 - bet 0b010
+    if (incoming_type == 2)
+        player_bet = netmsg & 0b0001111111111111
+
+        if (dlr_result == 255)
+             player_result = player_cards & 0x001F
+             acecnt = player_cards & 0x80
+             if (acecnt >= 1)
+                 player_result += 10
+             if (player_result <= 20)
+                 player_bank = player_bank - player_bet
+             outmsg = 0b1100000000000000  | player_bank
+        if (dlr_result <= 30)
+            dlr_cards = dlr_cards & 0xF0
+            dlr_cards = dlr_cards << 4
+            outmsg = 0b0110000000000000  | dlr_cards
+            tmp_card = player_cards & 0xFF00
+            tmp_card = tmp_card >>  8
+            outmsg = outmsg | tmp_card
+            # avoid gt and lt right now, b/c might be broken, so subbing 1
+        tmp = player_bet - 1
+        if (tmp >= player_bank)
+            player_bet = 0
+
+            outmsg = outmsg | 0b1110111101000100
+            # this shold cause it to error at BET instead of STAY.
+        action = 5
+
+    #4 - hit 0b010
+    if (incoming_type == 4)
+        player_result = player_cards & 0x001F
+        acecnt = player_cards & 0x80
+        if (new_card > 10)
+            new_card = 10
+        player_result = player_result + new_card
+        if (new_card == 1)
+            acecnt = 0x80
+
+        # this works b/c we will never use an ace to bust
+        if (player_result >= 22)
+            player_bank = player_bank - player_bet
+            tmp_card = 666
+            player_cards = player_cards & 0xFF00
+            player_cards = player_cards | acecnt
+            player_cards = player_cards | player_result
+            outmsg = 0b1100000000000000  | new_card
+        if (player_result <= 21)
+            outmsg = 0b0110000000000000  | new_card
+            player_cards = player_cards & 0xFF00
+            player_cards = player_cards | acecnt
+            player_cards = player_cards | player_result
+        action = 5
+
+     # stay 0b101
+    if (incoming_type == 5)
+        player_result = player_cards & 0x001F
+        acecnt = player_cards & 0x80
+        if (acecnt > 0)
+            player_result += 10
+            if (player_result >= 22)
+                player_result -= 10
+        tmp_card = 1-1
+        # can only convert a single ace b/c 11+11 > 21
+        # cannot get here if already got result from hit
+        if (player_result <= 21)
+            if (dlr_result >= 22)
+                player_bank = player_bank + player_bet
+                tmp_card = tmp_card | 1
+            if (dlr_result <= player_result)
+                player_bank = player_bank + player_bet
+                tmp_card = tmp_card | 2
+            if (dlr_result == player_result)
+                tmp_card = tmp_card | 4
+
+        if (player_result >= 22)
+            player_bank = player_bank - player_bet
+            tmp_card = tmp_card | 0xFFFF
+
+        # && is not working correctly
+        if (dlr_result <= 21)
+            if (player_result <= dlr_result)
+                player_bank = player_bank - player_bet
+                tmp_card = tmp_card | 16
+
+        # do nothing if dlr_result == player_result, aka PUSH
+        outmsg = 0b1100000000000000  | player_bank
+
+    action = 5
+    action = 5
+    action = 5

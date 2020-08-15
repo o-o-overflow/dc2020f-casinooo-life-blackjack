@@ -1,0 +1,122 @@
+operator (int a + int b) -> int
+    return __ADD__(a, b)
+
+operator (int a - int b) -> int
+    return __SUB__(a, b)
+
+operator -(int a) -> int
+    return __SUB__(0, a)
+
+operator (int a >= int b) -> bool
+    bool rtn = 1
+    rtn = __MLZ__(a-b, 0)
+    return rtn
+
+operator (int a <= int b) -> bool
+    bool rtn = 1
+    rtn = __MLZ__(b-a, 0)
+    return rtn
+
+operator (int a > int b) -> bool
+    bool rtn = 0
+    rtn = __MLZ__(b-a, 1)
+    return rtn
+
+operator (int a < int b) -> bool
+    bool rtn = 0
+    rtn = __MLZ__(a-b, 1)
+    return rtn
+
+operator ~(int a) -> int
+    return __ANT__(-1, a)
+
+unsafe operator not(int a) -> bool
+    bool rtn = 1
+    rtn = __MNZ__(a, 0)
+    return rtn
+
+operator not(bool a) -> bool
+    bool rtn = __XOR__(a, 1)
+    return rtn
+
+operator bool(int a) -> bool
+    bool rtn = 0
+    rtn = __MNZ__(a, 1)
+    return rtn
+
+operator int(bool a) -> int
+    return a
+
+operator (int a ^ int b) -> int
+    return __XOR__(a, b)
+
+operator (int a & int b) -> int
+    return __AND__(a, b)
+
+operator (bool a && bool b) -> bool
+    return __AND__(a, b)
+
+operator (int a | int b) -> int
+    return __OR__(a, b)
+
+operator (bool a || bool b) -> bool
+    return __OR__(a, b)
+
+operator (int a == int b) -> bool
+    int scratch = __XOR__(a, b)
+    bool rtn = not scratch
+    return rtn
+
+operator (int a != int b) -> bool
+    int scratch = __XOR__(a, b)
+    bool rtn = bool(scratch)
+    return rtn
+
+operator (int a << int b) -> int
+    return __SL__(a, b)
+
+operator (int a >> int b) -> int
+    return __SRL__(a, b)
+
+unsafe operator (int a % int b) -> int
+    int rtn = a
+    int t = 0
+    int n = b
+    int br = 1
+    while(br != 0) do
+        if(b > rtn)
+            br = 0
+        t = rtn >> 1
+        n = b
+        while (n < t) do
+            n <<= 1
+        if(br != 0)
+            rtn -= n
+    return rtn
+
+operator (int a / int b) -> int
+    int rtn = 0-1
+    int scratch = 0
+    while (scratch <= a) do
+        scratch += b
+        rtn += 1
+    return rtn
+
+unsafe operator (int a * int b) -> int
+    int rtn = 0
+    int x = a
+    int y = b
+    while (x > 0) do
+        if (x & 1)
+            rtn += y
+        y <<= 1
+        x >>= 1
+    return rtn
+
+unsafe operator (int a ** int b) -> int
+    int rtn = 1
+    if (bool(b))
+        rtn = a
+        for (int i = 1; i < b; i+=1)
+            rtn *= a
+    return rtn

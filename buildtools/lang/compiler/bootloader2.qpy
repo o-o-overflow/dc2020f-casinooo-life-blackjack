@@ -1,0 +1,35 @@
+#include stdint
+
+sub main
+    int signal = 131
+    int poi[7] = [61321,10642,56015,36934,20682,36943,18382]
+    # test this here
+    int xor_poi[7] = [0,0,0,0,0,0]
+
+    int i = 0
+    int total = 0
+    int xor_total = 0
+    int num = 0
+
+    while i < 7 do
+        int num = poi[i]
+        xor_total += num & 255
+        int res = i & 1
+        if res == 0
+            num = num ^ 23232
+        if res == 1
+            num = num ^ 39499
+        total += num & 255
+        xor_poi[i] = num
+        i += 1
+
+    if total == 346
+        if xor_total == 1047
+            i = 1
+            i = 0
+            while i < 7 do
+                poi[i] = xor_poi[i]
+                i+= 1
+            signal = 1
+
+            i = signal

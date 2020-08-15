@@ -1,0 +1,49 @@
+#include stdint
+#outfilename laas-bj-teams-controller.mc
+# location of the pattern to load the assembly into ^^^^^
+sub main
+    int action = 1
+    int incmsg = 0
+    int outmsg = 0
+    int msgtype = 0
+    int session_id = 0
+    int card_results = 0xFFFF
+    int value = 0
+    int playerid = 0
+
+    rand playerid
+    playerid = playerid & 0x1FFF
+
+    outmsg = 0x2000 | playerid
+    send 0 outmsg
+    outmsg = 0 ^ 0
+
+    while (action <= 5) do
+        read 7 incmsg
+        msgtype = incmsg & 0xE000
+        value = incmsg & 0x1FFF
+        incmsg = 0 ^ 0
+
+        if (msgtype == 0x2000)
+            session_id = value
+            send 0 0x40C8
+
+        if (msgtype == 0x6000)
+            card_results += value >> 4
+            card_results += value & 0xF
+
+            outmsg = 0x8000 | session_id
+
+            send 0 outmsg
+
+        if (msgtype == 0xC000)
+            send 0 0x40C8
+
+        if (msgtype == 0xE000)
+            send 0 0x40C8
+
+
+
+
+
+

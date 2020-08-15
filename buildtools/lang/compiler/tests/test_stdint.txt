@@ -1,0 +1,7 @@
+#include stdint
+
+sub main
+        int a = 10
+        int b = 99
+        int z = b/a
+        int c = z/a

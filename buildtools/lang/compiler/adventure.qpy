@@ -1,0 +1,85 @@
+#include stdint
+
+sub main
+    int action = 1
+    int goal = 0
+    int key1 = 2571
+    int key2 = 2569
+    int key3 = 2562
+    int map[31] = [65535,0,33025,59773,35081,0,39369,0,38153,34173,0,39273,37167,37409,37409,53869,37449,37449,37481,36939,46041,39497,37481,37449,54873,37449,37737,48137,32779,32905,65535]
+    int X = 1
+    int Y = 14
+    int do_exit = 0
+    int h = 9999
+    while (do_exit == 0) do
+        int tmpX = (X << 4)
+        int tmpY = (Y << 10)
+        int tmpXY = 0
+        tmpXY = tmpX | tmpY
+
+        # lowcc replaces 9999, 9998, 9997, 9996 addr[71]
+
+        # will set XY for A71 and clear A71s action
+        int tmp = 9998 | tmpXY
+        # reads 71 to send to players area
+        tmp = 9997
+        # this causes change to A71, via controller too
+
+        # will set XY for A71 and clear A71s action, which will be reset by controller before action is set
+        tmp = 9998 | tmpXY
+
+        int res = 0
+        int dir = -1
+
+        action = 9999 & 15
+
+        if action == 2
+            dir = 1
+        if action == 4
+            dir = 1
+        # we use y+1 as side effect of using integer for map
+        int next = Y + dir
+        int modY = 1 << next
+        # action == 1 is North, action == 2 is South
+        if action < 4
+            int safe = modY & map[X]
+            if safe == 0
+                Y = next
+
+        # action == 4 is East, action == 8 is West
+        if action >= 4
+            next = X + dir
+            modY = 1 << Y
+            int safe = modY & map[next]
+            if safe == 0
+                X = next
+
+        int tmp = (key1 & 65280) >> 8
+        if tmp == X
+            tmp = (key1 & 255)
+            if tmp == Y
+                goal = goal | 1
+        int tmp = (key2 & 65280) >> 8
+        if tmp == X
+            tmp = (key2 & 255)
+            if tmp == Y
+                goal = goal | 2
+        int tmp = (key3 & 65280) >> 8
+        if tmp == X
+            tmp = (key3 & 255)
+            if tmp == Y
+                goal = goal | 4
+
+        if X == 29
+            if Y == 1
+                if goal == 7
+                    goal = 1337
+                    do_exit = 32
+
+        if goal == 7
+            if X == 7
+                if Y == 12
+                    goal = 31337
+                    do_exit = 32
+
+
